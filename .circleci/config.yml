@@ -1,0 +1,87 @@
+# Javascript Node CircleCI 2.0 configuration file
+#
+# Check https://circleci.com/docs/2.0/language-javascript/ for more details
+#
+version: 2.1
+
+executors: # Define the environment of execution
+  docker-node:
+    docker:
+      - image: circleci/node:12
+    working_directory: ~/repo
+jobs: # Describe the different jobs (composing workflows)
+  test:
+    executor: docker-node
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "yarn.lock" }}
+            - v1-dependencies-fallback
+      - attach_workspace:
+          at: ~/repo
+      - run:
+          name: Install missing dependencies
+          command: yarn install
+      - save_cache:
+          paths:
+            - node_modules
+          key: v1-dependencies-{{ checksum "yarn.lock" }}
+      - run:
+          name: Setup Code Climate tests reporter
+          command: |
+            curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+            chmod +x ./cc-test-reporter
+      - run:
+          name: Run tests suites
+          command: |
+            ./cc-test-reporter before-build
+            yarn test --ci --testResultsProcessor="jest-junit" --coverage=true --coverageDirectory=coverage
+            ./cc-test-reporter after-build format-coverage -t lcov --exit-code $?
+          environment:
+            JEST_JUNIT_OUTPUT: "reports/junit/test-results.xml"
+      - save_cache:
+          paths:
+            - node_modules
+          key: v1-dependencies-{{ checksum "package.json" }}
+
+      - persist_to_workspace:
+          root: ~/repo
+          paths: .
+  deploy-to-npm:
+    executor: docker-node
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          name: Authenticate with registry
+          command: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > ~/repo/.npmrc
+      - run:
+          name: Publish package
+          command: npm publish
+
+workflows:
+  version: 2
+  development-ci: # The workflow trigger for each push to any branch
+    jobs:
+      - test:
+          filters:
+            tags:
+              ignore: /^v\d+\.\d+\.\d+$/ # No release versions tags (vX.X.X)
+
+  release-ci: # The workflow trigger by the push of a release tag
+    jobs:
+      - test:
+          filters:
+            tags:
+              only: /^v\d+\.\d+\.\d+$/ # Only release versions tags (vX.X.X)
+            branches:
+              ignore: /.*/ # Ignore all branch pushes
+      - deploy-to-npm:
+          filters:
+            tags:
+              only: /^v\d+\.\d+\.\d+$/ # Only release versions tags (vX.X.X)
+            branches:
+              ignore: /.*/ # Ignore all branch pushes
+          requires:
+            - test
