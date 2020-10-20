@@ -21,6 +21,9 @@
   "homepage": "https://github.com/PINPODEV/time-slots-finder#readme",
   "author": "Pinpo Team <contact@pinpo.fr>",
   "license": "MIT",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/"
+  },
   "private": false,
   "scripts": {
     "test": "jest",
