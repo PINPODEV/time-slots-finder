@@ -1,6 +1,6 @@
 {
   "name": "time-slots-finder",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "A module to extract available time slots from a calendar.",
   "main": "index.js",
   "repository": "https://github.com/PINPODEV/time-slots-finder.git",
