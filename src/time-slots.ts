@@ -94,16 +94,16 @@ function _checkSearchParameters(
 }
 
 function _computeBoundaries(from: Date, to: Date, configuration: TimeSlotsFinderConfiguration) {
-	const searchLimitMoment = configuration.maxDaysBeforeLastAvailability
+	const searchLimitMoment = configuration.maxDaysBeforeLastSlot
 		? dayjs().tz(configuration.timeZone)
-			.add(configuration.maxDaysBeforeLastAvailability, "day")
+			.add(configuration.maxDaysBeforeLastSlot, "day")
 			.endOf("day")
 		: null
 
 	const firstFromMoment = dayjs.max(
 		dayjs.tz(from, configuration.timeZone),
 		dayjs().tz(configuration.timeZone)
-			.add(configuration.minTimeBeforeFirstAvailability ?? 0, "hour"),
+			.add(configuration.minTimeBeforeFirstSlot ?? 0, "hour"),
 	)
 	const lastToMoment = searchLimitMoment
 		? dayjs.min(dayjs.tz(to, configuration.timeZone), searchLimitMoment)
@@ -140,13 +140,13 @@ function _getAvailableTimeSlotsForShift(
 ) {
 	const timeSlots: TimeSlot[] = []
 	const minTimeWindowNeeded = (
-		(configuration.minAvailableTimeBeforeAppointment ?? 0)
+		(configuration.minAvailableTimeBeforeSlot ?? 0)
 		+ configuration.timeSlotDuration
-		+ (configuration.minAvailableTimeAfterAppointment ?? 0)
+		+ (configuration.minAvailableTimeAfterSlot ?? 0)
 	)
-	let searchMoment = from.subtract(configuration.minAvailableTimeBeforeAppointment ?? 0, "minute")
+	let searchMoment = from.subtract(configuration.minAvailableTimeBeforeSlot ?? 0, "minute")
 	const searchEndMoment = to.subtract(
-		configuration.timeSlotDuration + (configuration.minAvailableTimeBeforeAppointment ?? 0),
+		configuration.timeSlotDuration + (configuration.minAvailableTimeBeforeSlot ?? 0),
 		"minute",
 	)
 	let eventIndex = eventList.findIndex((event) => event.endAt.isAfter(searchMoment))
@@ -171,7 +171,7 @@ function _pushNewSlot(
 	configuration: TimeSlotsFinderConfiguration,
 ): { newSearchMoment: Dayjs, timeSlot: TimeSlot } {
 	const startAt = searchMoment
-		.add(configuration.minAvailableTimeBeforeAppointment ?? 0, "minute")
+		.add(configuration.minAvailableTimeBeforeSlot ?? 0, "minute")
 	const endAt = startAt.add(configuration.timeSlotDuration, "minute")
 	const timeSlot = {
 		startAt: startAt.toDate(),
@@ -179,8 +179,8 @@ function _pushNewSlot(
 		duration: endAt.diff(startAt, "minute"),
 	}
 	const minutesBeforeNextSearch = Math.max(
-		(configuration.minAvailableTimeAfterAppointment ?? 0)
-		- (configuration.minAvailableTimeBeforeAppointment ?? 0),
+		(configuration.minAvailableTimeAfterSlot ?? 0)
+		- (configuration.minAvailableTimeBeforeSlot ?? 0),
 		0
 	)
 	return {

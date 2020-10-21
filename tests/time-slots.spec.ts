@@ -68,7 +68,7 @@ describe("Time Slot Finder", () => {
 			calendarData: iCalData,
 			configuration: {
 				...baseConfig,
-				minAvailableTimeBeforeAppointment: 10,
+				minAvailableTimeBeforeSlot: 10,
 			},
 			from: new Date("2020-10-16T15:00:00.000+02:00"),
 			to: new Date("2020-10-16T16:00:00.000+02:00"),
@@ -83,7 +83,7 @@ describe("Time Slot Finder", () => {
 			calendarData: iCalData,
 			configuration: {
 				...baseConfig,
-				minAvailableTimeBeforeAppointment: 10,
+				minAvailableTimeBeforeSlot: 10,
 			},
 			from: new Date("2020-10-16T15:10:00.000+02:00"),
 			to: new Date("2020-10-16T16:00:00.000+02:00"),
@@ -100,7 +100,7 @@ describe("Time Slot Finder", () => {
 			calendarData: iCalData,
 			configuration: {
 				...baseConfig,
-				minAvailableTimeAfterAppointment: 10,
+				minAvailableTimeAfterSlot: 10,
 			},
 			from: new Date("2020-10-16T15:00:00.000+02:00"),
 			to: new Date("2020-10-16T16:00:00.000+02:00"),
@@ -115,7 +115,7 @@ describe("Time Slot Finder", () => {
 			calendarData: iCalData,
 			configuration: {
 				...baseConfig,
-				minAvailableTimeAfterAppointment: 10,
+				minAvailableTimeAfterSlot: 10,
 			},
 			from: new Date("2020-10-16T15:15:00.000+02:00"),
 			to: new Date("2020-10-16T16:00:00.000+02:00"),
@@ -129,7 +129,7 @@ describe("Time Slot Finder", () => {
 		const slots = getAvailableTimeSlotsInCalendar({
 			configuration: {
 				...baseConfig,
-				minTimeBeforeFirstAvailability: 2,
+				minTimeBeforeFirstSlot: 2,
 			},
 			from: new Date("2020-10-16T15:00:00.000+02:00"),
 			to: new Date("2020-10-16T18:00:00.000+02:00"),
@@ -143,7 +143,7 @@ describe("Time Slot Finder", () => {
 		const slots = getAvailableTimeSlotsInCalendar({
 			configuration: {
 				...baseConfig,
-				maxDaysBeforeLastAvailability: 1,
+				maxDaysBeforeLastSlot: 1,
 			},
 			from: new Date("2020-10-16T19:00:00.000+02:00"),
 			to: new Date("2020-10-17T11:00:00.000+02:00"),
@@ -260,8 +260,8 @@ describe("Time Slot Finder", () => {
 		const slots = getAvailableTimeSlotsInCalendar({
 			configuration: {
 				...baseConfig,
-				minAvailableTimeBeforeAppointment: 10,
-				minAvailableTimeAfterAppointment: 15,
+				minAvailableTimeBeforeSlot: 10,
+				minAvailableTimeAfterSlot: 15,
 			},
 			from: new Date("2020-10-16T15:00:00.000+02:00"),
 			to: new Date("2020-10-16T17:00:00.000+02:00"),

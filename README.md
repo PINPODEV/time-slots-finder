@@ -35,8 +35,8 @@ const slots = TimeSlotsFinder.getAvailableTimeSlotsInCalendar({
     calendarFormat: TimeSlotsFinder.TimeSlotsFinderCalendarFormat.iCal,
     configuration: {
         timeSlotDuration: 15,
-        minAvailableTimeBeforeAppointment: 5,
-        minTimeBeforeFirstAvailability: 48,
+        minAvailableTimeBeforeSlot: 5,
+        minTimeBeforeFirstSlot: 48,
         workedPeriods: [{
             isoWeekDay: 5,
             shifts: [{ startTime: "10:00", endTime: "20:00" }] 
@@ -95,22 +95,22 @@ unworkedPeriods: [{
 ```
 ```typescript
 /* The minimum amount of minutes available before a slot. */
-minAvailableTimeBeforeAppointment: number
+minAvailableTimeBeforeSlot: number
 ```
 ```typescript
 /* The minimum amount of minutes available after a slot. */
-minAvailableTimeAfterAppointment: number
+minAvailableTimeAfterSlot: number
 ```
 ```typescript
 /**
  * The minimum amount of hours between the time of the search and the first slot
  * returned.
  */
-minAvailableTimeAfterAppointment: number
+minTimeBeforeFirstSlot: number
 ```
 ```typescript
 /* The maximum days from now before slots cannot be returned anymore. */
-maxDaysBeforeLastAvailability: number
+maxDaysBeforeLastSlot: number
 ```
 ```typescript
 /* The time zone used through all the configuration. */

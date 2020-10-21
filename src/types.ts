@@ -32,13 +32,13 @@ export interface TimeSlotsFinderConfiguration {
 	/** Periods where booking is impossible. Take precedence over workedPeriods. */
 	unworkedPeriods?: Period[]
 	/** The minimum amount of minutes available before an appointment. */
-	minAvailableTimeBeforeAppointment?: number
+	minAvailableTimeBeforeSlot?: number
 	/** The minimum amount of minutes available after an appointment. */
-	minAvailableTimeAfterAppointment?: number
+	minAvailableTimeAfterSlot?: number
 	/** The minimum amount of hours between the time of the booking and the appointment booked.. */
-	minTimeBeforeFirstAvailability?: number
+	minTimeBeforeFirstSlot?: number
 	/** The maximum days in the future before appointments cannot be taken anymore. */
-	maxDaysBeforeLastAvailability?: number
+	maxDaysBeforeLastSlot?: number
 	/** The timezone used through all the configuration. */
 	timeZone: string
 }

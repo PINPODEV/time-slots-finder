@@ -4,7 +4,7 @@ import {
 	isConfigurationValid,
 } from "../src/config-management"
 import { TimeSlotsFinderError } from "../src/errors"
-import { Shift } from "../src/types"
+import { Shift } from "../src"
 
 describe("#_mergeOverlappingShifts", () => {
 	it("should handle too small arrays properly", () => {
@@ -156,7 +156,7 @@ describe("#isConfigurationValid", () => {
 		})).toThrowError(new TimeSlotsFinderError(`Appointment duration must be at least 1 minute`))
 		expect(() => isConfigurationValid({
 			timeSlotDuration: 12,
-			minAvailableTimeBeforeAppointment: -1,
+			minAvailableTimeBeforeSlot: -1,
 			timeZone: "Europe/Paris",
 			workedPeriods: [{
 				isoWeekDay: 1,
@@ -168,7 +168,7 @@ describe("#isConfigurationValid", () => {
 		})).toThrowError(new TimeSlotsFinderError(`Time before an appointment must be at least 0 minutes`))
 		expect(() => isConfigurationValid({
 			timeSlotDuration: 12,
-			minAvailableTimeAfterAppointment: -1,
+			minAvailableTimeAfterSlot: -1,
 			timeZone: "Europe/Paris",
 			workedPeriods: [{
 				isoWeekDay: 1,
@@ -180,7 +180,7 @@ describe("#isConfigurationValid", () => {
 		})).toThrowError(new TimeSlotsFinderError(`Time after an appointment must be at least 0 minutes`))
 		expect(() => isConfigurationValid({
 			timeSlotDuration: 12,
-			minTimeBeforeFirstAvailability: -1,
+			minTimeBeforeFirstSlot: -1,
 			timeZone: "Europe/Paris",
 			workedPeriods: [{
 				isoWeekDay: 1,
@@ -192,8 +192,8 @@ describe("#isConfigurationValid", () => {
 		})).toThrowError(new TimeSlotsFinderError(`The number of hours before first availability must be 0 or more`))
 		expect(() => isConfigurationValid({
 			timeSlotDuration: 12,
-			minTimeBeforeFirstAvailability: 48,
-			maxDaysBeforeLastAvailability: 1,
+			minTimeBeforeFirstSlot: 48,
+			maxDaysBeforeLastSlot: 1,
 			timeZone: "Europe/Paris",
 			workedPeriods: [{
 				isoWeekDay: 1,
@@ -205,7 +205,7 @@ describe("#isConfigurationValid", () => {
 		})).toThrowError(new TimeSlotsFinderError(`The first possible appointment will always be after last one possible (see minTimeBeforeFirstAvailability and maxDaysBeforeLastAvailability)`))
 		expect(() => isConfigurationValid({
 			timeSlotDuration: 12,
-			maxDaysBeforeLastAvailability: 0,
+			maxDaysBeforeLastSlot: 0,
 			timeZone: "Europe/Paris",
 			workedPeriods: [{
 				isoWeekDay: 1,
@@ -313,10 +313,10 @@ describe("#isConfigurationValid", () => {
 	it("should return true for valid configurations", () => {
 		expect(isConfigurationValid({
 			timeSlotDuration: 12,
-			minAvailableTimeBeforeAppointment: 10,
-			minAvailableTimeAfterAppointment: 10,
-			minTimeBeforeFirstAvailability: 48,
-			maxDaysBeforeLastAvailability: 30,
+			minAvailableTimeBeforeSlot: 10,
+			minAvailableTimeAfterSlot: 10,
+			minTimeBeforeFirstSlot: 48,
+			maxDaysBeforeLastSlot: 30,
 			timeZone: "Europe/Paris",
 			workedPeriods: [{
 				isoWeekDay: 1,
@@ -343,8 +343,8 @@ describe("#isConfigurationValid", () => {
 		})).toBe(true)
 		expect(isConfigurationValid({
 			timeSlotDuration: 12,
-			minAvailableTimeBeforeAppointment: 3,
-			minAvailableTimeAfterAppointment: 7,
+			minAvailableTimeBeforeSlot: 3,
+			minAvailableTimeAfterSlot: 7,
 			timeZone: "Europe/Paris",
 			workedPeriods: [],
 		})).toBe(true)

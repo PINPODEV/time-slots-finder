@@ -43,16 +43,16 @@ function _checkPrimitiveValue(configuration: TimeSlotsFinderConfiguration): bool
 	if (configuration.timeSlotDuration == null || configuration.timeSlotDuration < 1) {
 		throw new TimeSlotsFinderError(`Appointment duration must be at least 1 minute`)
 	}
-	if (!_nullOrGreaterThanOrEqualTo(0, configuration.minAvailableTimeBeforeAppointment)) {
+	if (!_nullOrGreaterThanOrEqualTo(0, configuration.minAvailableTimeBeforeSlot)) {
 		throw new TimeSlotsFinderError(`Time before an appointment must be at least 0 minutes`)
 	}
-	if (!_nullOrGreaterThanOrEqualTo(0, configuration.minAvailableTimeAfterAppointment)) {
+	if (!_nullOrGreaterThanOrEqualTo(0, configuration.minAvailableTimeAfterSlot)) {
 		throw new TimeSlotsFinderError(`Time after an appointment must be at least 0 minutes`)
 	}
-	if (!_nullOrGreaterThanOrEqualTo(0, configuration.minTimeBeforeFirstAvailability)) {
+	if (!_nullOrGreaterThanOrEqualTo(0, configuration.minTimeBeforeFirstSlot)) {
 		throw new TimeSlotsFinderError(`The number of hours before first availability must be 0 or more`)
 	}
-	if (!_nullOrGreaterThanOrEqualTo(1, configuration.maxDaysBeforeLastAvailability)) {
+	if (!_nullOrGreaterThanOrEqualTo(1, configuration.maxDaysBeforeLastSlot)) {
 		throw new TimeSlotsFinderError(`The number of days before latest availability must be at least 1`)
 	}
 	try {
@@ -61,8 +61,8 @@ function _checkPrimitiveValue(configuration: TimeSlotsFinderConfiguration): bool
 		throw new TimeSlotsFinderError(`Invalid time zone: ${configuration.timeZone}`)
 	}
 
-	const minBeforeFirst = configuration.minTimeBeforeFirstAvailability
-	const maxBeforeLast = configuration.maxDaysBeforeLastAvailability
+	const minBeforeFirst = configuration.minTimeBeforeFirstSlot
+	const maxBeforeLast = configuration.maxDaysBeforeLastSlot
 	if (minBeforeFirst && maxBeforeLast && (minBeforeFirst / 24 > maxBeforeLast)) {
 		throw new TimeSlotsFinderError(`The first possible appointment will always be after last one possible (see minTimeBeforeFirstAvailability and maxDaysBeforeLastAvailability)`)
 	}
