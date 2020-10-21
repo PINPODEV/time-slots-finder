@@ -22,6 +22,7 @@ module.exports = {
 	// collected
 	collectCoverageFrom: [
 		"<rootDir>/src/**/*.{js,ts}",
+		"!**/*.d.ts",
 		"!**/*.spec.{js,ts}",
 		"!**/*.test.{js,ts}",
 	],
