@@ -46,6 +46,7 @@ export function getAvailableTimeSlotsInCalendar(params: TimeSlotsFinderParameter
 	if (calendarData) {
 		eventList.push(...extractEventsFromCalendar(timeZone, calendarFormat, calendarData))
 	}
+
 	/* Sort by ascending startAt */
 	eventList.sort((eventA, eventB) => eventA.startAt.valueOf() - eventB.startAt.valueOf())
 
@@ -57,11 +58,14 @@ export function getAvailableTimeSlotsInCalendar(params: TimeSlotsFinderParameter
 	while (fromMoment.isBefore(lastToMoment)) {
 		const weekDayConfig = _getWeekDayConfigForMoment(usedConfig, fromMoment)
 		if (weekDayConfig) {
+			/* Go through each shift of the week day */
 			weekDayConfig.shifts.forEach((shift: Shift) => {
 				const { startAt, endAt } = _getMomentsFromShift(fromMoment, shift)
+				/* Ensure that shift boundaries don't exceed global boundaries */
 				const partialFrom = dayjs.max(firstFromMoment, startAt)
 				const partialTo = dayjs.min(lastToMoment, endAt)
-				if (!partialFrom.isBefore(partialTo)) {
+				if (!partialFrom.isSameOrBefore(partialTo)) {
+					/* That may happen when shift boundaries exceed global ones */
 					return
 				}
 				timeSlots.push(
@@ -69,6 +73,7 @@ export function getAvailableTimeSlotsInCalendar(params: TimeSlotsFinderParameter
 				)
 			})
 		}
+		/* Go one day forward: all shifts for this day has been processed (if any) */
 		fromMoment = fromMoment.add(1, "day").startOf("day")
 	}
 
@@ -131,9 +136,11 @@ function _getMomentsFromShift(fromMoment: Dayjs, shift: Shift) {
 	let startAt = fromMoment.clone()
 	startAt = startAt.hour(parseInt(shift.startTime.slice(0, 2), 10))
 	startAt = startAt.minute(parseInt(shift.startTime.slice(3), 10))
+
 	let endAt = fromMoment.clone()
 	endAt = endAt.hour(parseInt(shift.endTime.slice(0, 2), 10))
 	endAt = endAt.minute(parseInt(shift.endTime.slice(3), 10))
+
 	return { startAt, endAt }
 }
 
@@ -154,12 +161,17 @@ function _getAvailableTimeSlotsForShift(
 		configuration.timeSlotDuration + (configuration.minAvailableTimeBeforeSlot ?? 0),
 		"minute",
 	)
+	/* Find index of the first event that is not yet ended at searchMoment */
 	let eventIndex = eventList.findIndex((event) => event.endAt.isAfter(searchMoment))
 	while (searchMoment.isSameOrBefore(searchEndMoment)) {
 		const focusedEvent: DayjsPeriod | null = (eventIndex >= 0 && eventList[eventIndex]) || null
-		const freeTimeLimitMoment = searchMoment.clone().add(minTimeWindowNeeded, "minute")
+		const freeTimeLimitMoment = searchMoment.add(minTimeWindowNeeded, "minute")
 
 		if (focusedEvent?.startAt.isBefore(freeTimeLimitMoment)) {
+			/**
+			 * If first event that is not yet ended start to soon to get a slot at this time,
+			 * go directly to the end of the event for next search.
+			 */
 			searchMoment = focusedEvent.endAt.clone()
 			if (focusedEvent) { eventIndex += 1 }
 		} else {
@@ -183,6 +195,10 @@ function _pushNewSlot(
 		endAt: endAt.toDate(),
 		duration: endAt.diff(startAt, "minute"),
 	}
+	/**
+	 * We should start searching after just created slot (including free time after it) but before
+	 * next one free time before it (since the search algorithm take it in account).
+	 */
 	const minutesBeforeNextSearch = Math.max(
 		(configuration.minAvailableTimeAfterSlot ?? 0)
 		- (configuration.minAvailableTimeBeforeSlot ?? 0),
