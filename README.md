@@ -1,4 +1,7 @@
 # Time Slots Finder
+
+[![Maintainability](https://api.codeclimate.com/v1/badges/d725b8e849c5cb063866/maintainability)](https://codeclimate.com/repos/5f89a743f73a06460500078a/maintainability) [![Test Coverage](https://api.codeclimate.com/v1/badges/d725b8e849c5cb063866/test_coverage)](https://codeclimate.com/repos/5f89a743f73a06460500078a/test_coverage)
+
 An API to get available time slots. It's possible to provide a calendar
 containing existing events.
 
@@ -89,8 +92,8 @@ workedPeriods: [{
  * other.
  */
 unworkedPeriods: [{
-    startAt: string, //
-    endAt: string, //
+    startAt: string,
+    endAt: string,
 }]
 ```
 ```typescript
