@@ -17,7 +17,7 @@ export interface Shift {
 	endTime: string
 }
 
-export interface WorkedPeriod {
+export interface AvailablePeriod {
 	/** An ISO weekday (1 for Monday to 7 for Sunday). */
 	isoWeekDay: number
 	/** A list of shifts for the day. */
@@ -28,14 +28,14 @@ export interface TimeSlotsFinderConfiguration {
 	/** Duration of a appointment in minutes. */
 	timeSlotDuration: number
 	/** The periods where booking is possible in a week. */
-	workedPeriods: WorkedPeriod[]
+	availablePeriods: AvailablePeriod[]
 	/** Periods where booking is impossible. Take precedence over workedPeriods. */
-	unworkedPeriods?: Period[]
+	unavailablePeriods?: Period[]
 	/** The minimum amount of minutes available before an appointment. */
 	minAvailableTimeBeforeSlot?: number
 	/** The minimum amount of minutes available after an appointment. */
 	minAvailableTimeAfterSlot?: number
-	/** The minimum amount of hours between the time of the booking and the appointment booked.. */
+	/** The minimum amount of minutes between the time of the booking and the appointment booked. */
 	minTimeBeforeFirstSlot?: number
 	/** The maximum days in the future before appointments cannot be taken anymore. */
 	maxDaysBeforeLastSlot?: number

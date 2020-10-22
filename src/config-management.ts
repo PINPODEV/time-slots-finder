@@ -1,6 +1,6 @@
 import dayjs from "dayjs"
 import { TimeSlotsFinderError } from "./errors"
-import { Period, Shift, TimeSlotsFinderConfiguration, WorkedPeriod } from "./types"
+import { Period, Shift, TimeSlotsFinderConfiguration, AvailablePeriod } from "./types"
 
 /**
  * Check the validity of a configuration for the time-slots service. If the configuration is
@@ -18,21 +18,24 @@ export function isConfigurationValid(configuration: TimeSlotsFinderConfiguration
 	_checkPrimitiveValue(configuration)
 
 	/* Worked periods */
-	if (!Array.isArray(configuration.workedPeriods)) {
-		throw new TimeSlotsFinderError("A list of worked periods is expected")
+	if (!Array.isArray(configuration.availablePeriods)) {
+		throw new TimeSlotsFinderError("A list of available periods is expected")
 	}
-	for (let i = 0; i < configuration.workedPeriods.length; i += 1) {
-		_isWorkedPeriodValid(configuration.workedPeriods[i], i)
+	for (let i = 0; i < configuration.availablePeriods.length; i += 1) {
+		_isAvailablePeriodValid(configuration.availablePeriods[i], i)
 	}
 
 	/* Unworked periods */
-	if (configuration.unworkedPeriods != null && !Array.isArray(configuration.unworkedPeriods)) {
-		throw new TimeSlotsFinderError("A list of unworked periods is expected")
+	if (
+		configuration.unavailablePeriods != null
+		&& !Array.isArray(configuration.unavailablePeriods)
+	) {
+		throw new TimeSlotsFinderError("A list of unavailable periods is expected")
 	}
-	if (configuration.unworkedPeriods) {
-		for (let i = 0; i < configuration.unworkedPeriods.length; i += 1) {
-			if (!_isUnworkedShiftValid(configuration.unworkedPeriods[i])) {
-				throw new TimeSlotsFinderError(`Unworked period nº${i + 1} is invalid`)
+	if (configuration.unavailablePeriods) {
+		for (let i = 0; i < configuration.unavailablePeriods.length; i += 1) {
+			if (!_isUnavailablePeriodValid(configuration.unavailablePeriods[i])) {
+				throw new TimeSlotsFinderError(`Unavailable period nº${i + 1} is invalid`)
 			}
 		}
 	}
@@ -41,19 +44,19 @@ export function isConfigurationValid(configuration: TimeSlotsFinderConfiguration
 
 function _checkPrimitiveValue(configuration: TimeSlotsFinderConfiguration): boolean {
 	if (configuration.timeSlotDuration == null || configuration.timeSlotDuration < 1) {
-		throw new TimeSlotsFinderError(`Appointment duration must be at least 1 minute`)
+		throw new TimeSlotsFinderError(`Slot duration must be at least 1 minute`)
 	}
 	if (!_nullOrGreaterThanOrEqualTo(0, configuration.minAvailableTimeBeforeSlot)) {
-		throw new TimeSlotsFinderError(`Time before an appointment must be at least 0 minutes`)
+		throw new TimeSlotsFinderError(`Time before a slot must be at least 0 minutes`)
 	}
 	if (!_nullOrGreaterThanOrEqualTo(0, configuration.minAvailableTimeAfterSlot)) {
-		throw new TimeSlotsFinderError(`Time after an appointment must be at least 0 minutes`)
+		throw new TimeSlotsFinderError(`Time after a slot must be at least 0 minutes`)
 	}
 	if (!_nullOrGreaterThanOrEqualTo(0, configuration.minTimeBeforeFirstSlot)) {
-		throw new TimeSlotsFinderError(`The number of hours before first availability must be 0 or more`)
+		throw new TimeSlotsFinderError(`The number of minutes before first slot must be 0 or more`)
 	}
 	if (!_nullOrGreaterThanOrEqualTo(1, configuration.maxDaysBeforeLastSlot)) {
-		throw new TimeSlotsFinderError(`The number of days before latest availability must be at least 1`)
+		throw new TimeSlotsFinderError(`The number of days before latest slot must be at least 1`)
 	}
 	try {
 		dayjs().tz(configuration.timeZone)
@@ -63,8 +66,8 @@ function _checkPrimitiveValue(configuration: TimeSlotsFinderConfiguration): bool
 
 	const minBeforeFirst = configuration.minTimeBeforeFirstSlot
 	const maxBeforeLast = configuration.maxDaysBeforeLastSlot
-	if (minBeforeFirst && maxBeforeLast && (minBeforeFirst / 24 > maxBeforeLast)) {
-		throw new TimeSlotsFinderError(`The first possible appointment will always be after last one possible (see minTimeBeforeFirstAvailability and maxDaysBeforeLastAvailability)`)
+	if (minBeforeFirst && maxBeforeLast && (minBeforeFirst / (24 * 60) > maxBeforeLast)) {
+		throw new TimeSlotsFinderError(`The first possible slot will always be after last one possible (see minTimeBeforeFirstSlot and maxDaysBeforeLastSlot)`)
 	}
 	return true
 }
@@ -74,17 +77,17 @@ function _nullOrGreaterThanOrEqualTo(limit: number, value?: number): boolean {
 }
 
 /**
- * Return a reformatted array of workedPeriods without overlapping shifts. Not mutating the
+ * Return a reformatted array of availablePeriods without overlapping shifts. Not mutating the
  * originals data.
- * @param {WorkedPeriod[]} workedPeriods The array of workedPeriods to reformat
- * @return {WorkedPeriod[]}
+ * @param {AvailablePeriod[]} availablePeriods The array of availablePeriods to reformat
+ * @return {AvailablePeriod[]}
  */
-export function _mergeOverlappingShiftsInWorkedPeriods(
-	workedPeriods: WorkedPeriod[]
-): WorkedPeriod[] {
-	return workedPeriods.map((workedPeriod) => ({
-		...workedPeriod,
-		shifts: _mergeOverlappingShifts(workedPeriod.shifts ?? []),
+export function _mergeOverlappingShiftsInAvailablePeriods(
+	availablePeriods: AvailablePeriod[]
+): AvailablePeriod[] {
+	return availablePeriods.map((availablePeriod) => ({
+		...availablePeriod,
+		shifts: _mergeOverlappingShifts(availablePeriod.shifts ?? []),
 	}))
 }
 
@@ -122,7 +125,7 @@ export function _mergeOverlappingShifts(shifts: Shift[]): Shift[] {
  * @param {Period} period The shifts to refactor into non-overlapping shifts.
  * @returns {boolean}
  */
-export function _isUnworkedShiftValid(period: Period): boolean {
+export function _isUnavailablePeriodValid(period: Period): boolean {
 	return Boolean(
 		period
 		&& period.startAt
@@ -137,24 +140,24 @@ export function _isUnworkedShiftValid(period: Period): boolean {
 
 /**
  * Indicate if a worked period is valid or not. Throws if not valid.
- * @param {WorkedPeriod} workedPeriod The period to check.
+ * @param {AvailablePeriod} availablePeriod The period to check.
  * @param {number} index The index of the worked period in the list.
  * @returns {boolean}
  */
-function _isWorkedPeriodValid(workedPeriod: WorkedPeriod, index: number) {
-	if (!Number.isInteger(workedPeriod.isoWeekDay)) {
-		throw new TimeSlotsFinderError(`ISO Weekday must and integer for work period nº${index + 1}`)
+function _isAvailablePeriodValid(availablePeriod: AvailablePeriod, index: number) {
+	if (!Number.isInteger(availablePeriod.isoWeekDay)) {
+		throw new TimeSlotsFinderError(`ISO Weekday must and integer for available period nº${index + 1}`)
 	}
-	if (workedPeriod.isoWeekDay < 1 || workedPeriod.isoWeekDay > 7) {
-		throw new TimeSlotsFinderError(`ISO Weekday must be contains between 1 (Monday) and 7 (Sunday) for work period nº${index + 1}`)
+	if (availablePeriod.isoWeekDay < 1 || availablePeriod.isoWeekDay > 7) {
+		throw new TimeSlotsFinderError(`ISO Weekday must be contains between 1 (Monday) and 7 (Sunday) for available period nº${index + 1}`)
 	}
-	for (const shift of workedPeriod.shifts) {
+	for (const shift of availablePeriod.shifts) {
 		if (!_isShiftValid(shift)) {
-			throw new TimeSlotsFinderError(`Daily shift ${shift.startTime} - ${shift.endTime} for work period nº${index + 1} is invalid`)
+			throw new TimeSlotsFinderError(`Daily shift ${shift.startTime} - ${shift.endTime} for available period nº${index + 1} is invalid`)
 		}
 	}
-	if (_mergeOverlappingShifts(workedPeriod.shifts).length !== workedPeriod.shifts.length) {
-		throw new TimeSlotsFinderError(`Some shifts are overlapping for work period nº${index + 1}`)
+	if (_mergeOverlappingShifts(availablePeriod.shifts).length !== availablePeriod.shifts.length) {
+		throw new TimeSlotsFinderError(`Some shifts are overlapping for available period nº${index + 1}`)
 	}
 
 	return true

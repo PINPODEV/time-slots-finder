@@ -1,6 +1,9 @@
 import dayjs, { Dayjs } from "dayjs"
 
-import { _mergeOverlappingShiftsInWorkedPeriods, isConfigurationValid } from "./config-management"
+import {
+	_mergeOverlappingShiftsInAvailablePeriods,
+	isConfigurationValid
+} from "./config-management"
 import { extractEventsFromCalendar } from "./events-extractors/extractor"
 import { TimeSlotsFinderError } from "./errors"
 import {
@@ -37,9 +40,9 @@ export function getAvailableTimeSlotsInCalendar(params: TimeSlotsFinderParameter
 	const { calendarFormat = TimeSlotsFinderCalendarFormat.iCal } = params
 
 	const usedConfig = _checkSearchParameters(configuration, from, to)
-	const { unworkedPeriods, timeZone } = usedConfig
+	const { unavailablePeriods, timeZone } = usedConfig
 
-	const eventList = [..._getUnworkedPeriodAsEvents(unworkedPeriods ?? [], timeZone)]
+	const eventList = [..._getUnavailablePeriodAsEvents(unavailablePeriods ?? [], timeZone)]
 	if (calendarData) {
 		eventList.push(...extractEventsFromCalendar(timeZone, calendarFormat, calendarData))
 	}
@@ -83,8 +86,10 @@ function _checkSearchParameters(
 
 	let usedConfig = configuration
 	try {
-		const formattedPeriods = _mergeOverlappingShiftsInWorkedPeriods(configuration.workedPeriods)
-		usedConfig = { ...configuration, workedPeriods: formattedPeriods }
+		const formattedPeriods = _mergeOverlappingShiftsInAvailablePeriods(
+			configuration.availablePeriods
+		)
+		usedConfig = { ...configuration, availablePeriods: formattedPeriods }
 	} catch (_) {
 		/* If workedPeriods aren't formatted well and provoke an error, the validation will fail */
 	}
@@ -103,7 +108,7 @@ function _computeBoundaries(from: Date, to: Date, configuration: TimeSlotsFinder
 	const firstFromMoment = dayjs.max(
 		dayjs.tz(from, configuration.timeZone),
 		dayjs().tz(configuration.timeZone)
-			.add(configuration.minTimeBeforeFirstSlot ?? 0, "hour"),
+			.add(configuration.minTimeBeforeFirstSlot ?? 0, "minute"),
 	)
 	const lastToMoment = searchLimitMoment
 		? dayjs.min(dayjs.tz(to, configuration.timeZone), searchLimitMoment)
@@ -117,7 +122,7 @@ function _getWeekDayConfigForMoment(
 	searchMoment: Dayjs,
 ) {
 	return (
-		configuration.workedPeriods.find((p) => p.isoWeekDay === searchMoment.isoWeekday())
+		configuration.availablePeriods.find((p) => p.isoWeekDay === searchMoment.isoWeekday())
 		|| null
 	)
 }
@@ -190,17 +195,17 @@ function _pushNewSlot(
 	}
 }
 
-function _getUnworkedPeriodAsEvents(unworkedPeriods: Period[], timeZone: string) {
-	return unworkedPeriods.map((unworkedPeriod) => {
+function _getUnavailablePeriodAsEvents(unavailablePeriods: Period[], timeZone: string) {
+	return unavailablePeriods.map((unavailablePeriod) => {
 		const currentYear = dayjs()
 			.tz(timeZone)
 			.year()
-		const startAt = unworkedPeriod.startAt.length === 11
-			? `${currentYear}-${unworkedPeriod.startAt}`
-			: unworkedPeriod.startAt
-		const endAt = unworkedPeriod.endAt.length === 11
-			? `${currentYear}-${unworkedPeriod.endAt}`
-			: unworkedPeriod.endAt
+		const startAt = unavailablePeriod.startAt.length === 11
+			? `${currentYear}-${unavailablePeriod.startAt}`
+			: unavailablePeriod.startAt
+		const endAt = unavailablePeriod.endAt.length === 11
+			? `${currentYear}-${unavailablePeriod.endAt}`
+			: unavailablePeriod.endAt
 		const startMoment = dayjs.tz(startAt, timeZone)
 		let endMoment = dayjs.tz(endAt, timeZone)
 		if (endMoment.isBefore(startMoment)) {
