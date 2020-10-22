@@ -9,13 +9,13 @@ import {
 	TimeSlot,
 	TimeSlotsFinderCalendarFormat,
 	TimeSlotsFinderConfiguration,
-	WorkedPeriod
+	AvailablePeriod
 } from "./types"
 
 export {
 	TimeSlotsFinderParameters,
 	TimeSlotsFinderConfiguration,
-	WorkedPeriod,
+	AvailablePeriod,
 	DatePeriod,
 	Period,
 	Shift,

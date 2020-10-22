@@ -7,7 +7,7 @@ const iCalData = (iCalTestJSON as unknown as { data: string }).data
 
 const baseConfig = {
 	timeSlotDuration: 15,
-	workedPeriods: [{
+	availablePeriods: [{
 		isoWeekDay: 5,
 		shifts: [{ startTime: "10:00", endTime: "20:00" }]
 	}],
@@ -22,7 +22,7 @@ describe("Time Slot Finder", () => {
 		const slots = getAvailableTimeSlotsInCalendar({
 			configuration: {
 				timeSlotDuration: 60,
-				workedPeriods: [{
+				availablePeriods: [{
 					isoWeekDay: 4,
 					shifts: [{ startTime: "12:00", endTime: "22:00" }]
 				}],
@@ -38,7 +38,7 @@ describe("Time Slot Finder", () => {
 		const slots = getAvailableTimeSlotsInCalendar({
 			configuration: {
 				timeSlotDuration: 45,
-				workedPeriods: [{
+				availablePeriods: [{
 					isoWeekDay: 4,
 					shifts: [{ startTime: "12:00", endTime: "22:00" }]
 				}],
@@ -51,7 +51,7 @@ describe("Time Slot Finder", () => {
 		const slots2 = getAvailableTimeSlotsInCalendar({
 			configuration: {
 				timeSlotDuration: 15,
-				workedPeriods: [{
+				availablePeriods: [{
 					isoWeekDay: 4,
 					shifts: [{ startTime: "12:00", endTime: "22:00" }]
 				}],
@@ -62,7 +62,7 @@ describe("Time Slot Finder", () => {
 		})
 		slots2.forEach((slot) => expect(slot.duration).toBe(15))
 	})
-	it("should handle properly minAvailableTimeBeforeAppointment parameter", () => {
+	it("should handle properly minAvailableTimeBeforeSlot parameter", () => {
 		MockDate.set(new Date("2020-10-14T15:00:00.000+02:00"))
 		const slots = getAvailableTimeSlotsInCalendar({
 			calendarData: iCalData,
@@ -94,7 +94,7 @@ describe("Time Slot Finder", () => {
 		expect(slots2[1].startAt.toString())
 			.toBe(new Date("2020-10-16T15:35:00.000+02:00").toString())
 	})
-	it("should handle properly minAvailableTimeAfterAppointment parameter", () => {
+	it("should handle properly minAvailableTimeAfterSlot parameter", () => {
 		MockDate.set(new Date("2020-10-14T15:00:00.000+02:00"))
 		const slots = getAvailableTimeSlotsInCalendar({
 			calendarData: iCalData,
@@ -124,12 +124,12 @@ describe("Time Slot Finder", () => {
 		expect(slots2[0].startAt.toString())
 			.toBe(new Date("2020-10-16T15:15:00.000+02:00").toString())
 	})
-	it("should handle properly minTimeBeforeFirstAvailability parameter", () => {
+	it("should handle properly minTimeBeforeFirstSlot parameter", () => {
 		MockDate.set(new Date("2020-10-16T14:00:00.000+02:00"))
 		const slots = getAvailableTimeSlotsInCalendar({
 			configuration: {
 				...baseConfig,
-				minTimeBeforeFirstSlot: 2,
+				minTimeBeforeFirstSlot: 2 * 60,
 			},
 			from: new Date("2020-10-16T15:00:00.000+02:00"),
 			to: new Date("2020-10-16T18:00:00.000+02:00"),
@@ -138,7 +138,7 @@ describe("Time Slot Finder", () => {
 		expect(slots[0].startAt.toString())
 			.toBe(new Date("2020-10-16T16:00:00.000+02:00").toString())
 	})
-	it("should handle properly maxDaysBeforeLastAvailability parameter", () => {
+	it("should handle properly maxDaysBeforeLastSlot parameter", () => {
 		MockDate.set(new Date("2020-10-15T18:00:00.000+02:00"))
 		const slots = getAvailableTimeSlotsInCalendar({
 			configuration: {
@@ -166,12 +166,12 @@ describe("Time Slot Finder", () => {
 		expect(slots[7].startAt.toString())
 			.toBe(new Date("2020-10-16T19:45:00.000Z").toString())
 	})
-	it("should handle properly workedPeriods parameter", () => {
+	it("should handle properly availablePeriods parameter", () => {
 		MockDate.set(new Date("2020-10-15T18:00:00.000+02:00"))
 		const slots = getAvailableTimeSlotsInCalendar({
 			configuration: {
 				...baseConfig,
-				workedPeriods: [{
+				availablePeriods: [{
 					isoWeekDay: 5,
 					shifts: [
 						{ startTime: "12:00", endTime: "13:00" },
@@ -191,7 +191,7 @@ describe("Time Slot Finder", () => {
 		const slots2 = getAvailableTimeSlotsInCalendar({
 			configuration: {
 				...baseConfig,
-				workedPeriods: [{
+				availablePeriods: [{
 					isoWeekDay: 4,
 					shifts: [
 						{ startTime: "12:00", endTime: "13:00" },
@@ -204,12 +204,12 @@ describe("Time Slot Finder", () => {
 		})
 		expect(slots2.length).toBe(0)
 	})
-	it("should handle properly unworkedPeriods parameter", () => {
+	it("should handle properly unavailablePeriods parameter", () => {
 		MockDate.set(new Date("2020-10-15T18:00:00.000+02:00"))
 		const slots = getAvailableTimeSlotsInCalendar({
 			configuration: {
 				...baseConfig,
-				unworkedPeriods: [{ startAt: "2020-10-16 12:30", endAt: "2020-10-16 14:00" }],
+				unavailablePeriods: [{ startAt: "2020-10-16 12:30", endAt: "2020-10-16 14:00" }],
 			},
 			from: new Date("2020-10-16T11:30:00.000+02:00"),
 			to: new Date("2020-10-16T15:00:00.000+02:00"),
@@ -227,7 +227,7 @@ describe("Time Slot Finder", () => {
 		const slots2 = getAvailableTimeSlotsInCalendar({
 			configuration: {
 				...baseConfig,
-				unworkedPeriods: [{ startAt: "2019-10-16 12:30", endAt: "2019-10-16 14:00" }],
+				unavailablePeriods: [{ startAt: "2019-10-16 12:30", endAt: "2019-10-16 14:00" }],
 			},
 			from: new Date("2020-10-16T11:30:00.000+02:00"),
 			to: new Date("2020-10-16T15:00:00.000+02:00"),
@@ -237,7 +237,7 @@ describe("Time Slot Finder", () => {
 		const slots3 = getAvailableTimeSlotsInCalendar({
 			configuration: {
 				...baseConfig,
-				unworkedPeriods: [{ startAt: "10-16 12:30", endAt: "10-16 14:00" }],
+				unavailablePeriods: [{ startAt: "10-16 12:30", endAt: "10-16 14:00" }],
 			},
 			from: new Date("2020-10-16T11:30:00.000+02:00"),
 			to: new Date("2020-10-16T15:00:00.000+02:00"),
@@ -255,7 +255,7 @@ describe("Time Slot Finder", () => {
 			to: new Date("2020-10-16T15:00:00.000+02:00"),
 		})).toThrowError(new TimeSlotsFinderError(("Invalid boundaries for the search")))
 	})
-	it(`should properly overlap minAvailableTimeBeforeAppointment and minAvailableTimeAfterAppointment`, () => {
+	it(`should properly overlap minAvailableTimeBeforeSlot and minAvailableTimeAfterSlot`, () => {
 		MockDate.set(new Date("2020-10-14T15:00:00.000+02:00"))
 		const slots = getAvailableTimeSlotsInCalendar({
 			configuration: {
