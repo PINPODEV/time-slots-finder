@@ -1,7 +1,10 @@
 # Time Slots Finder
 
-[![Maintainability](https://api.codeclimate.com/v1/badges/d725b8e849c5cb063866/maintainability)](https://codeclimate.com/repos/5f89a743f73a06460500078a/maintainability) [![Test Coverage](https://api.codeclimate.com/v1/badges/d725b8e849c5cb063866/test_coverage)](https://codeclimate.com/repos/5f89a743f73a06460500078a/test_coverage)
+![Module Version](https://badgen.net/npm/v/time-slots-finder)
+![License](https://badgen.net/npm/license/time-slots-finder)
 ![Bundle Size](https://badgen.net/bundlephobia/minzip/time-slots-finder)
+[![Maintainability](https://api.codeclimate.com/v1/badges/d725b8e849c5cb063866/maintainability)](https://codeclimate.com/repos/5f89a743f73a06460500078a/maintainability)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/d725b8e849c5cb063866/test_coverage)](https://codeclimate.com/repos/5f89a743f73a06460500078a/test_coverage)
 
 An API to get available time slots. It's possible to provide a calendar
 containing existing events.
