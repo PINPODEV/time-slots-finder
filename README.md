@@ -66,6 +66,18 @@ const slots = TimeSlotsFinder.getAvailableTimeSlotsInCalendar({
  */
 ```
 
+A **TimeSlot** is represented as follows:
+```typescript
+{
+    /* The start date of the period */
+    startAt: Date
+    /* The end date of the period */
+    endAt: Date
+    /* The duration of the slot in minutes */
+    duration: number
+}
+```
+
 ### Configuration options
 
 ```typescript
