@@ -69,7 +69,7 @@ const slots = TimeSlotsFinder.getAvailableTimeSlotsInCalendar({
 ### Configuration options
 
 ```typescript
-/* The lengths of the time slots in minutes. */
+/* The length of the time slots in minutes. */
 timeSlotDuration: number
 ```
 ```typescript
@@ -88,8 +88,7 @@ workedPeriods: [{
  * 
  * The format of the strings must be `YYYY-MM-DD HH:mm` or `MM-DD HH:mm`. When no
  * year specified, the shift repeats every year.
- * If the year is specified for one of the date, it MUST BE defined for the
- * other.
+ * An unworked period MUST have the same date format for both startAt and endAt.
  */
 unworkedPeriods: [{
     startAt: string,
@@ -97,16 +96,16 @@ unworkedPeriods: [{
 }]
 ```
 ```typescript
-/* The minimum amount of minutes available before a slot. */
+/* The minimum number of free minutes required before a slot. */
 minAvailableTimeBeforeSlot: number
 ```
 ```typescript
-/* The minimum amount of minutes available after a slot. */
+/* The minimum number of free minutes required after a slot. */
 minAvailableTimeAfterSlot: number
 ```
 ```typescript
 /**
- * The minimum amount of hours between the time of the search and the first slot
+ * The minimum number of hours between the time of the search and the first slot
  * returned.
  */
 minTimeBeforeFirstSlot: number
@@ -123,7 +122,7 @@ timeZone: string
 
 ### Advanced usage
 If you want to check that a configuration is valid without running a search,
-we provide a function to do it.
+ you can use the `isConfigurationValid` function as follows:
 
 ```typescript
 import * as TimeSlotsFinder from "time-slots-finder"
