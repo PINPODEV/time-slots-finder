@@ -9,11 +9,11 @@ benevolent way, will be much appreciated.
 
 If you're new to GitHub open source contributions through Pull Requests, this may help you: [How to Contribute to an Open Source Project on GitHub](https://egghead.io/courses/how-to-contribute-to-an-open-source-project-on-github).
 
-Every Pull Request submitted **must have all checks passing**. This means that your work must **contain unit tests** and **follow the code style** enforced by ESLint and the `.eslintrc` files of this package.
+Every Pull Request submitted **must have passed all the checks**. This means that your work must **contain unit tests** and **follow the code style** enforced by ESLint and the `.eslintrc` files of this package.
 
-The [Jest documentation](https://jestjs.io/docs/en/getting-started) may help you with unit testing. If an ESLint rule seams unclear to you, you can found its definition in the [ESLint documentation](https://eslint.org/docs/rules/).
+The [Jest documentation](https://jestjs.io/docs/en/getting-started) may help you with unit testing. If an ESLint rule seams unclear to you, you can find its definition in the [ESLint documentation](https://eslint.org/docs/rules/).
 
-_If you still have a hard time with the testing part, feel free to ask question through the comments of your Pull Request (tagging us may help us to see your question, see our username below)._
+_If you still have a hard time with the testing part, feel free to ask question through the comments of your Pull Request (tagging us may help getting notified about your question, see our username below)._
 
 The maintainers of this package are **@percypyan**, **@fbeiger** and **@Juskie**.
 
@@ -21,13 +21,13 @@ The maintainers of this package are **@percypyan**, **@fbeiger** and **@Juskie**
 
 - **Ensure the bug was not already reported** by searching on GitHub under [Issues](https://github.com/PINPODEV/time-slots-finder/issues).
 
-- If you're unable to find an open issue addressing the problem, [open a new one](https://github.com/PINPODEV/time-slots-finder/issues/new). Be sure to include a **title and clear description**, the version(s) of the package concerned by the bug, as much relevant information as possible, and a **code sample** or an **executable test case** demonstrating the expected behavior that is not occurring.
+- If you're unable to find an open issue addressing the problem, [open a new one](https://github.com/PINPODEV/time-slots-finder/issues/new). Be sure to include a **title and a clear description**, the version(s) of the package concerned by the bug, as much relevant information as possible, and a **code sample** or an **executable test case** demonstrating that the expected behaviour isn't met.
 
-## Did you write a patch that fixes a bug?
+## Did you wrote a patch that fixes a bug?
 
 - Open a new GitHub pull request with the patch.
 
-- Ensure the PR description clearly describes the problem and solution. Include the relevant issue number if applicable.
+- Ensure the PR's description clearly describes the problem and solution. Include the relevant issue number if applicable.
 
 ## Do you intend to add a new feature or change an existing one?
 
@@ -37,10 +37,10 @@ The maintainers of this package are **@percypyan**, **@fbeiger** and **@Juskie**
 
 ## Do you have questions about the source code?
 
-- Ask any question about how to use Time Slots Finder by [opening an issue](https://github.com/PINPODEV/time-slots-finder/issues/new).
+- Ask any question on how to use Time Slots Finder by [opening an issue](https://github.com/PINPODEV/time-slots-finder/issues/new).
 
 - If the documentation lack of clarity, you can open a Pull Request
-to suggest an improvement of the [README.md](https://github.com/PINPODEV/time-slots-finder/blob/main/README.md).
+to suggest any improvement of the [README.md](https://github.com/PINPODEV/time-slots-finder/blob/main/README.md).
 
 Thanks for your interest and your contribution!
 
