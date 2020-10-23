@@ -29,6 +29,12 @@ export interface TimeSlotsFinderConfiguration {
 	timeSlotDuration: number
 	/** The periods where booking is possible in a week. */
 	availablePeriods: AvailablePeriod[]
+	/**
+	 * A number indicating a required multiple for the start minute of a slot.
+	 * E.g. if the multiple is 15, slots can only begin at XX:00, XX:15, XX:30 or XX:45.
+	 * Default value is 5.
+	 */
+	slotStartMinuteMultiple?: number
 	/** Periods where booking is impossible. Take precedence over workedPeriods. */
 	unavailablePeriods?: Period[]
 	/** The minimum amount of minutes available before an appointment. */

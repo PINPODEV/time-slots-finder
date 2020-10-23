@@ -155,6 +155,42 @@ describe("#isConfigurationValid", () => {
 			}],
 		})).toThrowError(new TimeSlotsFinderError(`Slot duration must be at least 1 minute`))
 		expect(() => isConfigurationValid({
+			timeSlotDuration: 15,
+			slotStartMinuteMultiple: 0,
+			timeZone: "Europe/Paris",
+			availablePeriods: [{
+				isoWeekDay: 1,
+				shifts: [{
+					startTime: "19:00",
+					endTime: "21:00",
+				}],
+			}],
+		})).toThrowError(new TimeSlotsFinderError(`Slot start minute multiple must be contained between 1 and 30`))
+		expect(() => isConfigurationValid({
+			timeSlotDuration: 15,
+			slotStartMinuteMultiple: 40,
+			timeZone: "Europe/Paris",
+			availablePeriods: [{
+				isoWeekDay: 1,
+				shifts: [{
+					startTime: "19:00",
+					endTime: "21:00",
+				}],
+			}],
+		})).toThrowError(new TimeSlotsFinderError(`Slot start minute multiple must be contained between 1 and 30`))
+		expect(() => isConfigurationValid({
+			timeSlotDuration: 15,
+			slotStartMinuteMultiple: -10,
+			timeZone: "Europe/Paris",
+			availablePeriods: [{
+				isoWeekDay: 1,
+				shifts: [{
+					startTime: "19:00",
+					endTime: "21:00",
+				}],
+			}],
+		})).toThrowError(new TimeSlotsFinderError(`Slot start minute multiple must be contained between 1 and 30`))
+		expect(() => isConfigurationValid({
 			timeSlotDuration: 12,
 			minAvailableTimeBeforeSlot: -1,
 			timeZone: "Europe/Paris",

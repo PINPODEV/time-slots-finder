@@ -44,7 +44,7 @@ const slots = TimeSlotsFinder.getAvailableTimeSlotsInCalendar({
         timeSlotDuration: 15,
         minAvailableTimeBeforeSlot: 5,
         minTimeBeforeFirstSlot: 48,
-        workedPeriods: [{
+        availablePeriods: [{
             isoWeekDay: 5,
             shifts: [{ startTime: "10:00", endTime: "20:00" }] 
         }, {
@@ -90,7 +90,7 @@ timeSlotDuration: number
 ```
 ```typescript
 /* Bookable periods for each day of the week. */
-workedPeriods: [{
+availablePeriods: [{
     isoWeekDay: number, // 1 (Monday) - 7 (Sunday)
     shifts: [{
         startTime: string, // Format "HH:mm"
@@ -104,9 +104,9 @@ workedPeriods: [{
  * 
  * The format of the strings must be `YYYY-MM-DD HH:mm` or `MM-DD HH:mm`. When no
  * year specified, the shift repeats every year.
- * An unworked period MUST have the same date format for both startAt and endAt.
+ * An unavailable period MUST have the same date format for both startAt and endAt.
  */
-unworkedPeriods: [{
+unavailablePeriods: [{
     startAt: string,
     endAt: string,
 }]
@@ -145,7 +145,7 @@ import * as TimeSlotsFinder from "time-slots-finder"
 
 const config = {
     timeSlotDuration: 15,
-    workedPeriods: [{
+    availablePeriods: [{
         isoWeekDay: 5,
         shifts: [{ startTime: "20:00", endTime: "10:00" }] 
     }, {

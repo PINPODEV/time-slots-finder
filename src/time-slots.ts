@@ -113,6 +113,8 @@ function _computeBoundaries(from: Date, to: Date, configuration: TimeSlotsFinder
 	const firstFromMoment = dayjs.max(
 		dayjs.tz(from, configuration.timeZone),
 		dayjs().tz(configuration.timeZone)
+			/* `minAvailableTimeBeforeSlot` will be subtract later and it cannot start before now */
+			.add(configuration.minAvailableTimeBeforeSlot ?? 0, "minute")
 			.add(configuration.minTimeBeforeFirstSlot ?? 0, "minute"),
 	)
 	const lastToMoment = searchLimitMoment
@@ -151,11 +153,7 @@ function _getAvailableTimeSlotsForShift(
 	to: Dayjs,
 ) {
 	const timeSlots: TimeSlot[] = []
-	const minTimeWindowNeeded = (
-		(configuration.minAvailableTimeBeforeSlot ?? 0)
-		+ configuration.timeSlotDuration
-		+ (configuration.minAvailableTimeAfterSlot ?? 0)
-	)
+	const minTimeWindowNeeded = _getMinTimeWindowNeeded(configuration)
 	let searchMoment = from.subtract(configuration.minAvailableTimeBeforeSlot ?? 0, "minute")
 	const searchEndMoment = to.subtract(
 		configuration.timeSlotDuration + (configuration.minAvailableTimeBeforeSlot ?? 0),
@@ -165,6 +163,8 @@ function _getAvailableTimeSlotsForShift(
 	let eventIndex = eventList.findIndex((event) => event.endAt.isAfter(searchMoment))
 	while (searchMoment.isSameOrBefore(searchEndMoment)) {
 		const focusedEvent: DayjsPeriod | null = (eventIndex >= 0 && eventList[eventIndex]) || null
+		/* Adjust searchMoment according to the slotStartMinuteMultiple param */
+		searchMoment = _nextSearchMoment(searchMoment, configuration)
 		const freeTimeLimitMoment = searchMoment.add(minTimeWindowNeeded, "minute")
 
 		if (focusedEvent?.startAt.isBefore(freeTimeLimitMoment)) {
@@ -181,6 +181,14 @@ function _getAvailableTimeSlotsForShift(
 		}
 	}
 	return timeSlots
+}
+
+function _getMinTimeWindowNeeded(configuration :TimeSlotsFinderConfiguration) {
+	return (
+		(configuration.minAvailableTimeBeforeSlot ?? 0)
+		+ configuration.timeSlotDuration
+		+ (configuration.minAvailableTimeAfterSlot ?? 0)
+	)
 }
 
 function _pushNewSlot(
@@ -232,4 +240,20 @@ function _getUnavailablePeriodAsEvents(unavailablePeriods: Period[], timeZone: s
 			endAt: endMoment,
 		}
 	})
+}
+
+function _nextSearchMoment(moment: Dayjs, configuration: TimeSlotsFinderConfiguration): Dayjs {
+	/* Round up to the next minute if second value is not 0 */
+	const nextMoment = moment.second() !== 0
+		? moment.startOf("minute").add(1, "minute")
+		: moment.clone()
+	if (configuration.slotStartMinuteMultiple == null) {
+		return nextMoment
+	}
+	const slotStartAt = nextMoment.add(configuration.minAvailableTimeBeforeSlot ?? 0, "minute")
+	const slotStartMinuteMultiple = configuration.slotStartMinuteMultiple ?? 5
+	const minuteToAdd = (
+		slotStartMinuteMultiple - (slotStartAt.minute() % slotStartMinuteMultiple)
+	) % slotStartMinuteMultiple
+	return nextMoment.add(minuteToAdd, "minute").millisecond(0)
 }
