@@ -89,6 +89,14 @@ A **TimeSlot** is represented as follows:
 timeSlotDuration: number
 ```
 ```typescript
+/**
+ * A number indicating the step for the start minute of a slot.
+ * E.g. if the multiple is 15, slots can only begin at XX:00, XX:15, XX:30 or XX:45.
+ * Default value is 5.
+ */
+slotStartMinuteStep: number
+```
+```typescript
 /* Bookable periods for each day of the week. */
 availablePeriods: [{
     isoWeekDay: number, // 1 (Monday) - 7 (Sunday)
