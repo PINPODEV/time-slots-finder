@@ -270,6 +270,14 @@ describe("#isConfigurationValid", () => {
 		expect(() => isConfigurationValid({
 			timeSlotDuration: 12,
 			timeZone: "Europe/Paris",
+			availablePeriods: {
+				isoWeekDay: 4,
+				shifts: [{ startTime: "09:00", endTie: "19:00" }]
+			} as never,
+		})).toThrowError(new TimeSlotsFinderError(`A list of available periods is expected`))
+		expect(() => isConfigurationValid({
+			timeSlotDuration: 12,
+			timeZone: "Europe/Paris",
 			availablePeriods: [],
 			unavailablePeriods: [{
 				startAt: "20201013T18:00:00:000Z",
