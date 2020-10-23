@@ -9,7 +9,7 @@ benevolent way, will be much appreciated.
 
 If you're new to GitHub open source contributions through Pull Requests, this may help you: [How to Contribute to an Open Source Project on GitHub](https://egghead.io/courses/how-to-contribute-to-an-open-source-project-on-github).
 
-Every Pull Request submitted **must have all checks passing**. This means that your work must **contains unit tests** and **follow the code style** enforced by ESLint and the `.eslintrc` files of this package.
+Every Pull Request submitted **must have all checks passing**. This means that your work must **contain unit tests** and **follow the code style** enforced by ESLint and the `.eslintrc` files of this package.
 
 The [Jest documentation](https://jestjs.io/docs/en/getting-started) may help you with unit testing. If an ESLint rule seams unclear to you, you can found its definition in the [ESLint documentation](https://eslint.org/docs/rules/).
 
