@@ -3,7 +3,7 @@ import { extractEventsFromCalendar } from "../../src/events-extractors/extractor
 import { TimeSlotsFinderError } from "../../src/errors"
 import { extractEventsFromICal } from "../../src/events-extractors/ical"
 import { TimeSlotsFinderCalendarFormat } from "../../src"
-import iCalTestJSON from "../../src/resources/calendar-ical.json"
+import iCalTestJSON from "../resources/calendar-ical.json"
 
 const iCalData = (iCalTestJSON as unknown as { data: string }).data
 

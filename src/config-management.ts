@@ -46,6 +46,9 @@ function _checkPrimitiveValue(configuration: TimeSlotsFinderConfiguration): bool
 	if (configuration.timeSlotDuration == null || configuration.timeSlotDuration < 1) {
 		throw new TimeSlotsFinderError(`Slot duration must be at least 1 minute`)
 	}
+	if (!_nullOrBetween(1, 30, configuration.slotStartMinuteMultiple)) {
+		throw new TimeSlotsFinderError(`Slot start minute multiple must be contained between 1 and 30`)
+	}
 	if (!_nullOrGreaterThanOrEqualTo(0, configuration.minAvailableTimeBeforeSlot)) {
 		throw new TimeSlotsFinderError(`Time before a slot must be at least 0 minutes`)
 	}
@@ -74,6 +77,9 @@ function _checkPrimitiveValue(configuration: TimeSlotsFinderConfiguration): bool
 
 function _nullOrGreaterThanOrEqualTo(limit: number, value?: number): boolean {
 	return value == null || value >= limit
+}
+function _nullOrBetween(min: number, max: number, value?: number): boolean {
+	return value == null || (value >= min && value <= max)
 }
 
 /**

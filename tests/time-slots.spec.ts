@@ -1,6 +1,6 @@
 import { getAvailableTimeSlotsInCalendar } from "../src"
 import MockDate from "mockdate"
-import iCalTestJSON from "../src/resources/calendar-ical.json"
+import iCalTestJSON from "./resources/calendar-ical.json"
 import { TimeSlotsFinderError } from "../src/errors"
 
 const iCalData = (iCalTestJSON as unknown as { data: string }).data
@@ -33,7 +33,7 @@ describe("Time Slot Finder", () => {
 		})
 		expect(slots.length).toBe(5)
 	})
-	it("should handle properly appointmentDuration parameter", () => {
+	it("should handle properly timeSlotDuration parameter", () => {
 		MockDate.set(new Date("2020-10-14T15:00:00.000Z"))
 		const slots = getAvailableTimeSlotsInCalendar({
 			configuration: {
@@ -61,6 +61,67 @@ describe("Time Slot Finder", () => {
 			to: new Date("2020-10-15T20:00:00.000Z"),
 		})
 		slots2.forEach((slot) => expect(slot.duration).toBe(15))
+	})
+	it("should handle properly slotStartMinuteMultiple parameter", () => {
+		MockDate.set(new Date("2020-10-15T15:03:12.592Z"))
+		const slots = getAvailableTimeSlotsInCalendar({
+			configuration: {
+				timeSlotDuration: 10,
+				slotStartMinuteMultiple: 5,
+				availablePeriods: [{
+					isoWeekDay: 4,
+					shifts: [{ startTime: "12:00", endTime: "22:00" }]
+				}],
+				timeZone: "Europe/Paris",
+			},
+			from: new Date("2020-10-15T15:00:00.000Z"),
+			to: new Date("2020-10-15T16:00:00.000Z"),
+		})
+		expect(slots.length).toBe(5)
+		expect(slots[0].startAt.toISOString()).toBe("2020-10-15T15:05:00.000Z")
+		expect(slots[1].startAt.toISOString()).toBe("2020-10-15T15:15:00.000Z")
+		expect(slots[2].startAt.toISOString()).toBe("2020-10-15T15:25:00.000Z")
+		expect(slots[3].startAt.toISOString()).toBe("2020-10-15T15:35:00.000Z")
+		expect(slots[4].startAt.toISOString()).toBe("2020-10-15T15:45:00.000Z")
+
+		const slots2 = getAvailableTimeSlotsInCalendar({
+			configuration: {
+				timeSlotDuration: 10,
+				slotStartMinuteMultiple: 5,
+				minAvailableTimeBeforeSlot: 2,
+				availablePeriods: [{
+					isoWeekDay: 4,
+					shifts: [{ startTime: "12:00", endTime: "22:00" }]
+				}],
+				timeZone: "Europe/Paris",
+			},
+			from: new Date("2020-10-15T15:00:00.000Z"),
+			to: new Date("2020-10-15T16:00:00.000Z"),
+		})
+		expect(slots2.length).toBe(3)
+		expect(slots2[0].startAt.toISOString()).toBe("2020-10-15T15:10:00.000Z")
+		expect(slots2[1].startAt.toISOString()).toBe("2020-10-15T15:25:00.000Z")
+		expect(slots2[2].startAt.toISOString()).toBe("2020-10-15T15:40:00.000Z")
+		const slots3 = getAvailableTimeSlotsInCalendar({
+			configuration: {
+				timeSlotDuration: 10,
+				slotStartMinuteMultiple: 15,
+				minAvailableTimeBeforeSlot: 5,
+				minTimeBeforeFirstSlot: 45,
+				availablePeriods: [{
+					isoWeekDay: 4,
+					shifts: [{ startTime: "12:00", endTime: "22:00" }]
+				}],
+				timeZone: "Europe/Paris",
+			},
+			from: new Date("2020-10-15T16:00:00.000Z"),
+			to: new Date("2020-10-15T17:00:00.000Z"),
+		})
+		expect(slots3.length).toBe(4)
+		expect(slots3[0].startAt.toISOString()).toBe("2020-10-15T16:00:00.000Z")
+		expect(slots3[1].startAt.toISOString()).toBe("2020-10-15T16:15:00.000Z")
+		expect(slots3[2].startAt.toISOString()).toBe("2020-10-15T16:30:00.000Z")
+		expect(slots3[3].startAt.toISOString()).toBe("2020-10-15T16:45:00.000Z")
 	})
 	it("should handle properly minAvailableTimeBeforeSlot parameter", () => {
 		MockDate.set(new Date("2020-10-14T15:00:00.000+02:00"))

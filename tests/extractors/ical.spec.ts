@@ -2,7 +2,7 @@ import dayjs from "dayjs"
 
 import { extractEventsFromCalendar } from "../../src/events-extractors/extractor"
 
-import iCalTestJSON from "../../src/resources/calendar-ical.json"
+import iCalTestJSON from "../resources/calendar-ical.json"
 import { TimeSlotsFinderCalendarFormat } from "../../src"
 
 const iCalData = (iCalTestJSON as unknown as { data: string }).data
@@ -15,6 +15,7 @@ describe("iCal calendar extractor", () => {
 			TimeSlotsFinderCalendarFormat.iCal,
 			iCalData
 		)
+		/* Events with invalid or without start or end date should be ignored */
 		expect(events).toEqual([
 			{
 				endAt: dayjs("2020-10-16T08:00:00.000Z").tz(timeZone),
@@ -55,15 +56,7 @@ describe("iCal calendar extractor", () => {
 			{
 				endAt: dayjs("2020-10-17T10:45:00.000Z").tz(timeZone),
 				startAt: dayjs("2020-10-17T09:45:00.000Z").tz(timeZone),
-			},
-			{
-				endAt: dayjs("2020-10-17T09:30:00.000Z").tz(timeZone),
-				startAt: dayjs("2020-10-17T08:30:00.000Z").tz(timeZone),
-			},
-			{
-				endAt: dayjs("2020-10-17T08:45:00.000Z").tz(timeZone),
-				startAt: dayjs("2020-10-17T07:45:00.000Z").tz(timeZone),
-			},
+			}
 		])
 	})
 	it("should convert extracted events to the provided time zone", () => {

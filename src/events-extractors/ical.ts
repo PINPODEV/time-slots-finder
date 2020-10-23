@@ -21,14 +21,15 @@ export function extractEventsFromICal(
 			const eventTimeZone = startDateKey?.match(/^DTSTART;TZID=(.*)$/)?.[1]
 			const endDateKey = eventTimeZone ? `DTEND;TZID=${eventTimeZone}` : `DTEND`
 			const parsedTimeZone = eventTimeZone || calendarTimeZone
-			const startDate = dayjs.tz(vEvent[startDateKey] as string, parsedTimeZone)
-			const endDate = dayjs.tz(vEvent[endDateKey] as string, parsedTimeZone)
-			if (!startDate.isValid() || !endDate.isValid()) {
+			try {
+				const startDate = dayjs.tz(vEvent[startDateKey] as string, parsedTimeZone)
+				const endDate = dayjs.tz(vEvent[endDateKey] as string, parsedTimeZone)
+				return {
+					startAt: startDate.tz(preferredTimeZone),
+					endAt: endDate.tz(preferredTimeZone),
+				}
+			} catch (_) {
 				return null
-			}
-			return {
-				startAt: startDate.tz(preferredTimeZone),
-				endAt: endDate.tz(preferredTimeZone),
 			}
 		})
 		.filter((event) => event) as DayjsPeriod[]
