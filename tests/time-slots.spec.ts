@@ -67,7 +67,7 @@ describe("Time Slot Finder", () => {
 		const slots = getAvailableTimeSlotsInCalendar({
 			configuration: {
 				timeSlotDuration: 10,
-				slotStartMinuteMultiple: 5,
+				slotStartMinuteStep: 5,
 				availablePeriods: [{
 					isoWeekDay: 4,
 					shifts: [{ startTime: "12:00", endTime: "22:00" }]
@@ -87,7 +87,7 @@ describe("Time Slot Finder", () => {
 		const slots2 = getAvailableTimeSlotsInCalendar({
 			configuration: {
 				timeSlotDuration: 10,
-				slotStartMinuteMultiple: 5,
+				slotStartMinuteStep: 5,
 				minAvailableTimeBeforeSlot: 2,
 				availablePeriods: [{
 					isoWeekDay: 4,
@@ -105,7 +105,7 @@ describe("Time Slot Finder", () => {
 		const slots3 = getAvailableTimeSlotsInCalendar({
 			configuration: {
 				timeSlotDuration: 10,
-				slotStartMinuteMultiple: 15,
+				slotStartMinuteStep: 15,
 				minAvailableTimeBeforeSlot: 5,
 				minTimeBeforeFirstSlot: 45,
 				availablePeriods: [{
