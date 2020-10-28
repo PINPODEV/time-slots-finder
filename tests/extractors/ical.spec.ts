@@ -5,11 +5,14 @@ import { extractEventsFromCalendar } from "../../src/events-extractors/extractor
 import iCalTestJSON from "../resources/calendar-ical.json"
 import iCalTestEmptyJSON from "../resources/calendar-ical-empty.json"
 import { TimeSlotsFinderCalendarFormat } from "../../src"
+import MockDate from "mockdate"
 
 const iCalData = (iCalTestJSON as unknown as { data: string }).data
 const iCalEmptyData = (iCalTestEmptyJSON as unknown as { data: string }).data
 
 describe("iCal calendar extractor", () => {
+	beforeAll(() => MockDate.set(new Date("2020-10-15T15:03:12.592Z")))
+	afterAll(() => MockDate.reset())
 	it("should properly extract events from iCal formatted strings", () => {
 		const timeZone = "Europe/Paris"
 		const events = extractEventsFromCalendar(

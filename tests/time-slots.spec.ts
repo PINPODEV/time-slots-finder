@@ -16,6 +16,7 @@ const baseConfig = {
 
 describe("Time Slot Finder", () => {
 	beforeEach(() => MockDate.reset())
+	afterAll(() => MockDate.reset())
 
 	it("should return slots even without calendar data", () => {
 		MockDate.set(new Date("2020-10-14T15:00:00.000Z"))
