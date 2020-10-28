@@ -10,7 +10,7 @@ export function extractEventsFromICal(
 
 	const vCalendar = (iCalendarJSONData.VCALENDAR as JSONCal)[0] as JSONCal
 	const calendarTimeZone = vCalendar["X-WR-TIMEZONE"] as string
-	const vEvents = vCalendar.VEVENT as JSONCal[]
+	const vEvents = vCalendar.VEVENT as JSONCal[] ?? []
 	return vEvents
 		.map((vEvent) => {
 			const keys = Object.keys(vEvent)

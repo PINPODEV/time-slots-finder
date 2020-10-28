@@ -3,9 +3,11 @@ import dayjs from "dayjs"
 import { extractEventsFromCalendar } from "../../src/events-extractors/extractor"
 
 import iCalTestJSON from "../resources/calendar-ical.json"
+import iCalTestEmptyJSON from "../resources/calendar-ical-empty.json"
 import { TimeSlotsFinderCalendarFormat } from "../../src"
 
 const iCalData = (iCalTestJSON as unknown as { data: string }).data
+const iCalEmptyData = (iCalTestEmptyJSON as unknown as { data: string }).data
 
 describe("iCal calendar extractor", () => {
 	it("should properly extract events from iCal formatted strings", () => {
@@ -72,5 +74,14 @@ describe("iCal calendar extractor", () => {
 			iCalData
 		)
 		expect(events2[0].startAt.format("Z")).toBe("+11:00")
+	})
+	it("should not throw for empty calendar", () => {
+		const events = extractEventsFromCalendar(
+			"Europe/Paris",
+			TimeSlotsFinderCalendarFormat.iCal,
+			iCalEmptyData
+		)
+		expect(Array.isArray(events)).toBe(true)
+		expect(events.length).toBe(0)
 	})
 })
