@@ -1,5 +1,5 @@
 import ICal2JSON, { JSONCal } from "ical2json"
-import dayjs from "dayjs"
+import dayjs, { Dayjs } from "dayjs"
 import { DayjsPeriod } from "../types"
 
 export function extractEventsFromICal(
@@ -22,8 +22,8 @@ export function extractEventsFromICal(
 			const endDateKey = eventTimeZone ? `DTEND;TZID=${eventTimeZone}` : `DTEND`
 			const parsedTimeZone = eventTimeZone || calendarTimeZone
 			try {
-				const startDate = dayjs.tz(vEvent[startDateKey] as string, parsedTimeZone)
-				const endDate = dayjs.tz(vEvent[endDateKey] as string, parsedTimeZone)
+				const startDate = _parseICalDate(vEvent[startDateKey] as string, parsedTimeZone)
+				const endDate = _parseICalDate(vEvent[endDateKey] as string, parsedTimeZone)
 				return {
 					startAt: startDate.tz(preferredTimeZone),
 					endAt: endDate.tz(preferredTimeZone),
@@ -33,4 +33,12 @@ export function extractEventsFromICal(
 			}
 		})
 		.filter((event) => event) as DayjsPeriod[]
+}
+
+function _parseICalDate(dateString: string, timeZone: string): Dayjs {
+	if (dateString.length > 15) {
+		const offset = parseInt(dateString.slice(15).replace(":", "."), 10)
+		return dayjs(dateString.slice(0, 15)).utcOffset(Number.isNaN(offset) ? 0 : offset, true)
+	}
+	return dayjs.tz(dateString, timeZone)
 }
