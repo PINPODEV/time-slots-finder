@@ -111,15 +111,15 @@ function _computeBoundaries(from: Date, to: Date, configuration: TimeSlotsFinder
 		: null
 
 	const firstFromMoment = dayjs.max(
-		dayjs.tz(from, configuration.timeZone),
+		dayjs(from).tz(configuration.timeZone),
 		dayjs().tz(configuration.timeZone)
 			/* `minAvailableTimeBeforeSlot` will be subtract later and it cannot start before now */
 			.add(configuration.minAvailableTimeBeforeSlot ?? 0, "minute")
 			.add(configuration.minTimeBeforeFirstSlot ?? 0, "minute"),
 	)
 	const lastToMoment = searchLimitMoment
-		? dayjs.min(dayjs.tz(to, configuration.timeZone), searchLimitMoment)
-		: dayjs.tz(to, configuration.timeZone)
+		? dayjs.min(dayjs(to).tz(configuration.timeZone), searchLimitMoment)
+		: dayjs(to).tz(configuration.timeZone)
 
 	return { firstFromMoment, lastToMoment }
 }
