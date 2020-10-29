@@ -124,6 +124,24 @@ describe("Time Slot Finder", () => {
 		expect(slots3[2].startAt.toISOString()).toBe("2020-10-15T16:30:00.000Z")
 		expect(slots3[3].startAt.toISOString()).toBe("2020-10-15T16:45:00.000Z")
 	})
+	it("should use 5 as default for slotStartMinuteMultiple parameter", () => {
+		MockDate.set(new Date("2020-10-15T15:03:12.592Z"))
+		const slots = getAvailableTimeSlotsInCalendar({
+			configuration: {
+				timeSlotDuration: 10,
+				availablePeriods: [{
+					isoWeekDay: 4,
+					shifts: [{ startTime: "12:00", endTime: "22:00" }]
+				}],
+				timeZone: "Europe/Paris",
+			},
+			from: new Date("2020-10-15T15:00:00.000Z"),
+			to: new Date("2020-10-15T16:00:00.000Z"),
+		})
+		expect(slots.length).toBe(5)
+		expect(slots[0].startAt.toISOString()).toBe("2020-10-15T15:05:00.000Z")
+		expect(slots[4].startAt.toISOString()).toBe("2020-10-15T15:45:00.000Z")
+	})
 	it("should handle properly minAvailableTimeBeforeSlot parameter", () => {
 		MockDate.set(new Date("2020-10-14T15:00:00.000+02:00"))
 		const slots = getAvailableTimeSlotsInCalendar({

@@ -247,9 +247,6 @@ function _nextSearchMoment(moment: Dayjs, configuration: TimeSlotsFinderConfigur
 	const nextMoment = moment.second() !== 0
 		? moment.startOf("minute").add(1, "minute")
 		: moment.clone()
-	if (configuration.slotStartMinuteStep == null) {
-		return nextMoment
-	}
 	const slotStartAt = nextMoment.add(configuration.minAvailableTimeBeforeSlot ?? 0, "minute")
 	const slotStartMinuteStep = configuration.slotStartMinuteStep ?? 5
 	const minuteToAdd = (
