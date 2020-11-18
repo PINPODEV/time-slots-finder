@@ -1,13 +1,26 @@
 import { Dayjs } from "dayjs"
 
+export interface PeriodMoment {
+	/** The year of the moment. */
+	year?: number
+	/** The month of the moment. */
+	month: number
+	/** The day of the year of the moment. */
+	day: number
+	/** The hour of the moment. */
+	hour?: number
+	/** The minute of the moment. */
+	minute?: number
+}
+
 export interface Period {
 	/**
 	 * The moment the shift starts. The format of the string must be `YYYY-MM-DD HH:mm` or
 	 * `MM-DD HH:mm`.When no year specified, the shift repeats every year.
 	 */
-	startAt: string
+	startAt: PeriodMoment
 	/** The moment the shift end. The format MUST BE the same as the startAt property one. */
-	endAt: string
+	endAt: PeriodMoment
 }
 
 export interface Shift {

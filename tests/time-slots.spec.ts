@@ -289,7 +289,10 @@ describe("Time Slot Finder", () => {
 		const slots = getAvailableTimeSlotsInCalendar({
 			configuration: {
 				...baseConfig,
-				unavailablePeriods: [{ startAt: "2020-10-16 12:30", endAt: "2020-10-16 14:00" }],
+				unavailablePeriods: [{
+					startAt: { year: 2020, month: 9, day: 16, hour: 12, minute: 30 },
+					endAt: { year: 2020, month: 9, day: 16, hour: 14, minute: 0 }
+				}],
 			},
 			from: new Date("2020-10-16T11:30:00.000+02:00"),
 			to: new Date("2020-10-16T15:00:00.000+02:00"),
@@ -307,7 +310,10 @@ describe("Time Slot Finder", () => {
 		const slots2 = getAvailableTimeSlotsInCalendar({
 			configuration: {
 				...baseConfig,
-				unavailablePeriods: [{ startAt: "2019-10-16 12:30", endAt: "2019-10-16 14:00" }],
+				unavailablePeriods: [{
+					startAt: { year: 2019, month: 9, day: 16, hour: 12, minute: 30 },
+					endAt: { year: 2019, month: 9, day: 16, hour: 14, minute: 0 }
+				}],
 			},
 			from: new Date("2020-10-16T11:30:00.000+02:00"),
 			to: new Date("2020-10-16T15:00:00.000+02:00"),
@@ -317,7 +323,10 @@ describe("Time Slot Finder", () => {
 		const slots3 = getAvailableTimeSlotsInCalendar({
 			configuration: {
 				...baseConfig,
-				unavailablePeriods: [{ startAt: "10-16 12:30", endAt: "10-16 14:00" }],
+				unavailablePeriods: [{
+					startAt: { month: 9, day: 16, hour: 12, minute: 30 },
+					endAt: { month: 9, day: 16, hour: 14, minute: 0 }
+				}],
 			},
 			from: new Date("2020-10-16T11:30:00.000+02:00"),
 			to: new Date("2020-10-16T15:00:00.000+02:00"),
@@ -327,6 +336,57 @@ describe("Time Slot Finder", () => {
 			.toBe(new Date("2020-10-16T11:30:00.000+02:00").toString())
 		expect(slots3[7].startAt.toString())
 			.toBe(new Date("2020-10-16T14:45:00.000+02:00").toString())
+
+		const slots4 = getAvailableTimeSlotsInCalendar({
+			configuration: {
+				...baseConfig,
+				unavailablePeriods: [{
+					startAt: { month: 9, day: 16, hour: 12, minute: 30 },
+					endAt: { month: 9, day: 16, hour: 14 }
+				}],
+			},
+			from: new Date("2020-10-16T12:15:00.000+02:00"),
+			to: new Date("2020-10-16T15:00:00.000+02:00"),
+		})
+		expect(slots4.length).toBe(5)
+		expect(slots4[0].startAt.toString())
+			.toBe(new Date("2020-10-16T12:15:00.000+02:00").toString())
+		expect(slots4[1].startAt.toString())
+			.toBe(new Date("2020-10-16T14:00:00.000+02:00").toString())
+
+		const slots5 = getAvailableTimeSlotsInCalendar({
+			configuration: {
+				...baseConfig,
+				unavailablePeriods: [{
+					startAt: { month: 9, day: 16 },
+					endAt: { month: 9, day: 17 }
+				}],
+			},
+			from: new Date("2020-10-15T19:45:00.000+02:00"),
+			to: new Date("2020-10-18T10:15:00.000+02:00"),
+		})
+		expect(slots5.length).toBe(2)
+		expect(slots5[0].startAt.toString())
+			.toBe(new Date("2020-10-15T19:45:00.000+02:00").toString())
+		expect(slots5[1].startAt.toString())
+			.toBe(new Date("2020-10-18T10:00:00.000+02:00").toString())
+
+		const slots6 = getAvailableTimeSlotsInCalendar({
+			configuration: {
+				...baseConfig,
+				unavailablePeriods: [{
+					startAt: { year: 2021, month: 9, day: 16, hour: 16 },
+					endAt: { year: 2021, month: 9, day: 16, hour: 17, minute: 30 }
+				}],
+			},
+			from: new Date("2020-10-16T15:45:00.000+02:00"),
+			to: new Date("2020-10-16T17:45:00.000+02:00"),
+		})
+		expect(slots6.length).toBe(2)
+		expect(slots6[0].startAt.toString())
+			.toBe(new Date("2020-10-16T15:45:00.000+02:00").toString())
+		expect(slots6[1].startAt.toString())
+			.toBe(new Date("2020-10-16T17:30:00.000+02:00").toString())
 	})
 	it("should throw for invalid from and/or to parameters", () => {
 		expect(() => getAvailableTimeSlotsInCalendar({

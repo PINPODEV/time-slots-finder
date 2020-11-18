@@ -221,24 +221,25 @@ function _pushNewSlot(
 
 function _getUnavailablePeriodAsEvents(unavailablePeriods: Period[], timeZone: string) {
 	return unavailablePeriods.map((unavailablePeriod) => {
-		const currentYear = dayjs()
-			.tz(timeZone)
-			.year()
-		const startAt = unavailablePeriod.startAt.length === 11
-			? `${currentYear}-${unavailablePeriod.startAt}`
-			: unavailablePeriod.startAt
-		const endAt = unavailablePeriod.endAt.length === 11
-			? `${currentYear}-${unavailablePeriod.endAt}`
-			: unavailablePeriod.endAt
-		const startMoment = dayjs.tz(startAt, timeZone)
-		let endMoment = dayjs.tz(endAt, timeZone)
-		if (endMoment.isBefore(startMoment)) {
-			endMoment = endMoment.add(1, "year")
+		/* Transit through string since dayjs.tz with object parsing is bugged */
+		const startAtString = dayjs(unavailablePeriod.startAt as never).format("YYYY-MM-DD HH:mm")
+		let startAt = dayjs.tz(startAtString, timeZone)
+		const endAtString = dayjs(unavailablePeriod.endAt as never).format("YYYY-MM-DD HH:mm")
+		let endAt = dayjs.tz(endAtString, timeZone)
+
+		/* If no hours defined, use full days */
+		if (unavailablePeriod.startAt.hour == null) {
+			startAt = startAt.startOf("day")
 		}
-		return {
-			startAt: startMoment,
-			endAt: endMoment,
+		if (unavailablePeriod.endAt.hour == null) {
+			endAt = endAt.endOf("day")
 		}
+
+		/* Can only happen if no years were defined: push endAt to next year */
+		if (endAt.isBefore(startAt)) {
+			endAt = endAt.add(1, "year")
+		}
+		return { startAt, endAt }
 	})
 }
 
