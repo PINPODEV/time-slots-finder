@@ -1,6 +1,6 @@
 import dayjs from "dayjs"
 import { TimeSlotsFinderError } from "./errors"
-import { Period, Shift, TimeSlotsFinderConfiguration, AvailablePeriod } from "./types"
+import { Period, Shift, TimeSlotsFinderConfiguration, AvailablePeriod, PeriodMoment } from "./types"
 
 /**
  * Check the validity of a configuration for the time-slots service. If the configuration is
@@ -136,11 +136,16 @@ export function _isUnavailablePeriodValid(period: Period): boolean {
 		period
 		&& period.startAt
 		&& period.endAt
-		&& period.startAt.length === period.endAt.length
-		&& _isDateStringValid(period.startAt)
-		&& _isDateStringValid(period.endAt)
+		/* Both have year, or both have not */
+		&& (period.startAt.year == null) === (period.endAt.year == null)
+		&& _isPeriodMomentValid(period.startAt)
+		&& _isPeriodMomentValid(period.endAt)
 		/* If no year specified, the order can be reversed: the next year will be take for endAt */
-		&& (period.startAt.length < 16 || period.startAt.localeCompare(period.endAt) < 0),
+		&& (
+			period.startAt.year == null
+			/* Using the objectSupport DayJS plugin, types are not up to date */
+			|| dayjs(period.startAt as never).isBefore(dayjs(period.endAt as never))
+		),
 	)
 }
 
@@ -171,23 +176,38 @@ function _isAvailablePeriodValid(availablePeriod: AvailablePeriod, index: number
 
 /**
  * Indicate either if the provided date string is valid or not.
- * @param {string} dateString The date string to check.
+ * @param {PeriodMoment} periodMoment The date string to check.
  * @returns {boolean}
  */
-function _isDateStringValid(dateString: string) {
-	const longFormat = "YYYY-MM-DD HH:mm"
-	const shortFormat = "MM-DD HH:mm"
-	/* Format YYYY-MM-DD HH:mm */
-	if (dateString.length === 16) {
-		return dayjs(dateString, longFormat, true).format(longFormat) === dateString
+function _isPeriodMomentValid(periodMoment: PeriodMoment) {
+	if (periodMoment.hour == null && periodMoment.minute != null) {
+		return false
 	}
 
-	/* Format MM-DD HH:mm */
-	if (dateString.length === 11) {
-		return dayjs(dateString, shortFormat).format(shortFormat) === dateString
+	const isYearAndMonthValid = (
+		(periodMoment.year == null || periodMoment.year > 0)
+		&& periodMoment.month >= 0 && periodMoment.month <= 11
+	)
+
+	if (!isYearAndMonthValid) {
+		return false
 	}
 
-	return false
+	/* The day check depends on month and year */
+	let day = dayjs().month(periodMoment.month)
+	if (periodMoment.year) { day = day.year(periodMoment.year) }
+	day = day.date(periodMoment.day)
+
+	const isDayValid = (
+		periodMoment.day >= 1 && periodMoment.day <= 31
+		&& day.month() === periodMoment.month
+	)
+
+	return (
+		isDayValid
+		&& (periodMoment.hour == null || (periodMoment.hour >= 0 && periodMoment.hour <= 23))
+		&& (periodMoment.minute == null || (periodMoment.minute >= 0 && periodMoment.minute <= 59))
+	)
 }
 
 /**

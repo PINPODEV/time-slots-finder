@@ -72,67 +72,94 @@ describe("#_mergeOverlappingShifts", () => {
 	})
 })
 
-describe("#_isUnworkedShiftValid", () => {
+describe("#_isUnavailablePeriodValid", () => {
 	it("should return false for invalid dates", () => {
 		expect(_isUnavailablePeriodValid({
-			startAt: "",
-			endAt: "",
+			startAt: {} as never,
+			endAt: {} as never,
 		})).toBe(false)
 		expect(_isUnavailablePeriodValid({
-			startAt: "1994-10-12 23:55",
-			endAt: "",
+			startAt: { year: 1994, month: 9, day: 12, hour: 23, minute: 55 },
+			endAt: {} as never,
 		})).toBe(false)
 		expect(_isUnavailablePeriodValid({
-			startAt: "",
-			endAt: "1994-10-12 23:55",
+			startAt: {} as never,
+			endAt: { year: 1994, month: 9, day: 12, hour: 23, minute: 55 },
 		})).toBe(false)
 		expect(_isUnavailablePeriodValid({
-			startAt: "1994-10-12 23:55",
-			endAt: "1994-13-12 23:55",
+			startAt: { year: 1994, day: 12, hour: 23, minute: 55 } as never,
+			endAt: { year: 1994, month: 9, day: 12, hour: 23, minute: 55 },
+		})).toBe(false)
+		/* 2021 is not a leap year: February 29th does not exist. */
+		expect(_isUnavailablePeriodValid({
+			startAt: { year: 2021, month: 1, day: 29, hour: 23, minute: 55 },
+			endAt: { year: 2021, month: 9, day: 12, hour: 23, minute: 55 },
 		})).toBe(false)
 		expect(_isUnavailablePeriodValid({
-			startAt: "1994-10-12 23:55",
-			endAt: "1994-10-13 24:55",
+			startAt: { year: 1994, hour: 23, minute: 55 } as never,
+			endAt: { year: 1994, month: 9, day: 12, hour: 23, minute: 55 },
 		})).toBe(false)
 		expect(_isUnavailablePeriodValid({
-			startAt: "10-12 23:55",
-			endAt: "10-13 23:75",
+			startAt: "1994-10-12 23:55" as never,
+			endAt: "1994-10-13 23:55" as never,
+		})).toBe(false)
+		expect(_isUnavailablePeriodValid({
+			startAt: "10-12 23:55" as never,
+			endAt: "10-13 23:55" as never,
 		})).toBe(false)
 	})
 	it("should return false if endAt is equal or before startAt", () => {
 		expect(_isUnavailablePeriodValid({
-			startAt: "1994-10-12 23:55",
-			endAt: "1994-10-11 23:55",
+			startAt: { year: 1994, month: 10, day: 12, hour: 23, minute: 55 },
+			endAt: { year: 1994, month: 10, day: 11, hour: 23, minute: 55 },
 		})).toBe(false)
 	})
-	it("should return false if endAt and startAt have different format", () => {
+	it("should return false if only one of endAt and startAt have year defined", () => {
 		expect(_isUnavailablePeriodValid({
-			startAt: "10-12 23:55",
-			endAt: "1994-10-13 23:55",
+			startAt: { month: 10, day: 12, hour: 23, minute: 55 },
+			endAt: { year: 1994, month: 10, day: 13, hour: 23, minute: 55 },
 		})).toBe(false)
 		expect(_isUnavailablePeriodValid({
-			startAt: "1994-10-12 23:55",
-			endAt: "10-13 23:55",
+			startAt: { year: 1994, month: 10, day: 12, hour: 23, minute: 55 },
+			endAt: { month: 10, day: 13, hour: 23, minute: 55 },
 		})).toBe(false)
 	})
 	it("should return true if endAt is before startAt without a specific year", () => {
 		expect(_isUnavailablePeriodValid({
-			startAt: "12-24 23:55",
-			endAt: "01-01 23:55",
+			startAt: { month: 11, day: 24, hour: 23, minute: 55 },
+			endAt: { month: 1, day: 1, hour: 23, minute: 55 },
 		})).toBe(true)
+	})
+	it("should return true if hour and minute are not defined", () => {
+		expect(_isUnavailablePeriodValid({
+			startAt: { month: 11, day: 24 },
+			endAt: { month: 1, day: 1 },
+		})).toBe(true)
+	})
+	it("should return true if minute are not defined", () => {
+		expect(_isUnavailablePeriodValid({
+			startAt: { month: 11, day: 24, hour: 23 },
+			endAt: { month: 0, day: 1, hour: 23 },
+		})).toBe(true)
+	})
+	it("should return false if hour are not defined but minute are", () => {
+		expect(_isUnavailablePeriodValid({
+			startAt: { month: 11, day: 24, minute: 23 },
+			endAt: { month: 0, day: 1, minute: 23 },
+		})).toBe(false)
 	})
 	it(`should return true if endAt and startAt have same valid format and are correctly ordered`, () => {
 		expect(_isUnavailablePeriodValid({
-			startAt: "1994-12-24 23:55",
-			endAt: "1995-01-01 23:55",
+			startAt: { year: 1994, month: 11, day: 24, hour: 23, minute: 55 },
+			endAt: { year: 1995, month: 1, day: 1, hour: 23, minute: 55 },
 		})).toBe(true)
 		expect(_isUnavailablePeriodValid({
-			startAt: "1994-12-24 23:55",
-			endAt: "1994-12-26 23:55",
+			startAt: { year: 1994, month: 11, day: 24, hour: 23, minute: 55 },
+			endAt: { year: 1994, month: 11, day: 26, hour: 23, minute: 55 },
 		})).toBe(true)
 		expect(_isUnavailablePeriodValid({
-			startAt: "12-24 23:55",
-			endAt: "12-26 23:55",
+			startAt: { month: 11, day: 24, hour: 23, minute: 55 },
+			endAt: { month: 11, day: 26, hour: 23, minute: 55 },
 		})).toBe(true)
 	})
 })
@@ -280,8 +307,8 @@ describe("#isConfigurationValid", () => {
 			timeZone: "Europe/Paris",
 			availablePeriods: [],
 			unavailablePeriods: [{
-				startAt: "20201013T18:00:00:000Z",
-				endAt: "20201013T20:00:00:000Z",
+				startAt: "20201013T18:00:00:000Z" as never,
+				endAt: "20201013T20:00:00:000Z" as never,
 			}],
 		})).toThrowError(new TimeSlotsFinderError(`Unavailable period nº1 is invalid`))
 		expect(() => isConfigurationValid({
@@ -289,8 +316,8 @@ describe("#isConfigurationValid", () => {
 			timeZone: "Europe/Paris",
 			availablePeriods: [],
 			unavailablePeriods: [{
-				startAt: "2020-10-13 18:00",
-				endAt: "10-13 20:00",
+				startAt: { year: 2020, month: 10, day: 13, hour: 18, minute: 0 },
+				endAt: { month: 10, day: 13, hour: 20, minute: 0 },
 			}],
 		})).toThrowError(new TimeSlotsFinderError(`Unavailable period nº1 is invalid`))
 		expect(() => isConfigurationValid({
@@ -370,8 +397,8 @@ describe("#isConfigurationValid", () => {
 				}],
 			}],
 			unavailablePeriods: [{
-				startAt: "10-13 18:00",
-				endAt: "10-01 20:00",
+				startAt: { month: 10, day: 13, hour: 18, minute: 0 },
+				endAt: { month: 10, day: 1, hour: 20, minute: 0 },
 			}],
 		})).toBe(true)
 		expect(isConfigurationValid({
