@@ -14,12 +14,9 @@ export interface PeriodMoment {
 }
 
 export interface Period {
-	/**
-	 * The moment the shift starts. The format of the string must be `YYYY-MM-DD HH:mm` or
-	 * `MM-DD HH:mm`.When no year specified, the shift repeats every year.
-	 */
+	/** The moment the shift starts. When no year specified the shift repeats every year. */
 	startAt: PeriodMoment
-	/** The moment the shift end. The format MUST BE the same as the startAt property one. */
+	/** The moment the shift end. If year defined for `startAt`, it must be defined for `endAt`. */
 	endAt: PeriodMoment
 }
 

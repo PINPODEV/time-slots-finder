@@ -140,7 +140,10 @@ export function _isUnavailablePeriodValid(period: Period): boolean {
 		&& (period.startAt.year == null) === (period.endAt.year == null)
 		&& _isPeriodMomentValid(period.startAt)
 		&& _isPeriodMomentValid(period.endAt)
-		/* If no year specified, the order can be reversed: the next year will be take for endAt */
+		/**
+		 * If the year value isn't specified, endAt can precede startAt, and
+		 * doing so will set the endAt year value to the following year if needed.
+		 */
 		&& (
 			period.startAt.year == null
 			/* Using the objectSupport DayJS plugin, types are not up to date */
@@ -176,7 +179,7 @@ function _isAvailablePeriodValid(availablePeriod: AvailablePeriod, index: number
 
 /**
  * Indicate either if the provided date string is valid or not.
- * @param {PeriodMoment} periodMoment The date string to check.
+ * @param {PeriodMoment} periodMoment The date object to check.
  * @returns {boolean}
  */
 function _isPeriodMomentValid(periodMoment: PeriodMoment) {
@@ -196,15 +199,9 @@ function _isPeriodMomentValid(periodMoment: PeriodMoment) {
 	/* The day check depends on month and year */
 	let day = dayjs().month(periodMoment.month)
 	if (periodMoment.year) { day = day.year(periodMoment.year) }
-	day = day.date(periodMoment.day)
-
-	const isDayValid = (
-		periodMoment.day >= 1 && periodMoment.day <= 31
-		&& day.month() === periodMoment.month
-	)
 
 	return (
-		isDayValid
+		periodMoment.day >= 1 && periodMoment.day <= day.daysInMonth()
 		&& (periodMoment.hour == null || (periodMoment.hour >= 0 && periodMoment.hour <= 23))
 		&& (periodMoment.minute == null || (periodMoment.minute >= 0 && periodMoment.minute <= 59))
 	)
