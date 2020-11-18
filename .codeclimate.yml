@@ -12,29 +12,21 @@ plugins:
          enabled: false
 checks:
   argument-count:
-    config:
-      enabled: false
+    enabled: false
   complex-logic:
-    config:
-      enabled: false
+    enabled: false
   file-lines:
-    config:
-      enabled: false
+    enabled: false
   method-complexity:
-    config:
-      enabled: false
+    enabled: false
   method-count:
-    config:
-      enabled: false
+    enabled: false
   method-lines:
-    config:
-      enabled: false
+    enabled: false
   nested-control-flow:
-    config:
-      enabled: false
+    enabled: false
   return-statements:
-    config:
-      enabled: false
+    enabled: false
   similar-code:
     config:
       threshold: # language-specific defaults. an override will affect all languages.
