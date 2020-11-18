@@ -10,8 +10,8 @@ An API to get available time slots. It's possible to provide a calendar
 containing existing events.
 
 **Disclaimer**
-> This module is currently still in pre-version. Breaking changes may occurs in minor
-> versions. Use it with care.
+> This module is currently still in pre-version. **BREAKING CHANGES may occurs in MINOR
+> versions**. Use it with care.
 
 ## Features
 - Define slots duration
@@ -43,7 +43,7 @@ const slots = TimeSlotsFinder.getAvailableTimeSlotsInCalendar({
     configuration: {
         timeSlotDuration: 15,
         minAvailableTimeBeforeSlot: 5,
-        minTimeBeforeFirstSlot: 48,
+        minTimeBeforeFirstSlot: 48 * 60, // 48 hours in minutes
         availablePeriods: [{
             isoWeekDay: 5,
             shifts: [{ startTime: "10:00", endTime: "20:00" }] 
@@ -110,13 +110,16 @@ availablePeriods: [{
 /**
  * Periods where no booking is allowed.
  * 
- * The format of the strings must be `YYYY-MM-DD HH:mm` or `MM-DD HH:mm`. When no
- * year specified, the shift repeats every year.
- * An unavailable period MUST have the same date format for both startAt and endAt.
+ * Objet containing at least month and day values.
+ * If years are ommited, event repeat every years.
+ * If hour are ommited, all day is included: hour 00:00 is used for startAt and 23:59 is used for
+ * endAt.
+ * Month are 0 indexed, i.e. January is 0 and December is 11. 
+ * An unavailable period MUST have year defined for BOTH OR NONE of startAt and endAt.
  */
 unavailablePeriods: [{
-    startAt: string,
-    endAt: string,
+    startAt: { year?: number, month: number, day: number, hour?: number, minute?: number },
+    endAt: { year?: number, month: number, day: number, hour?: number, minute?: number },
 }]
 ```
 ```typescript
@@ -129,7 +132,7 @@ minAvailableTimeAfterSlot: number
 ```
 ```typescript
 /**
- * The minimum number of hours between the time of the search and the first slot
+ * The minimum number of minutes between the time of the search and the first slot
  * returned.
  */
 minTimeBeforeFirstSlot: number
