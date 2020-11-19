@@ -306,6 +306,12 @@ describe("#isConfigurationValid", () => {
 			timeSlotDuration: 12,
 			timeZone: "Europe/Paris",
 			availablePeriods: [],
+			unavailablePeriods: "Something" as never,
+		})).toThrowError(new TimeSlotsFinderError(`A list of unavailable periods is expected`))
+		expect(() => isConfigurationValid({
+			timeSlotDuration: 12,
+			timeZone: "Europe/Paris",
+			availablePeriods: [],
 			unavailablePeriods: [{
 				startAt: "20201013T18:00:00:000Z" as never,
 				endAt: "20201013T20:00:00:000Z" as never,
