@@ -357,6 +357,13 @@ describe("Time Slot Finder", () => {
 		const slots5 = getAvailableTimeSlotsInCalendar({
 			configuration: {
 				...baseConfig,
+				availablePeriods: [{
+					isoWeekDay: 4,
+					shifts: [{ startTime: "10:00", endTime: "20:00" }]
+				}, {
+					isoWeekDay: 7,
+					shifts: [{ startTime: "10:00", endTime: "20:00" }]
+				}],
 				unavailablePeriods: [{
 					startAt: { month: 9, day: 16 },
 					endAt: { month: 9, day: 17 }
@@ -375,8 +382,8 @@ describe("Time Slot Finder", () => {
 			configuration: {
 				...baseConfig,
 				unavailablePeriods: [{
-					startAt: { year: 2021, month: 9, day: 16, hour: 16 },
-					endAt: { year: 2021, month: 9, day: 16, hour: 17, minute: 30 }
+					startAt: { year: 2020, month: 9, day: 16, hour: 16 },
+					endAt: { year: 2020, month: 9, day: 16, hour: 17, minute: 30 }
 				}],
 			},
 			from: new Date("2020-10-16T15:45:00.000+02:00"),
