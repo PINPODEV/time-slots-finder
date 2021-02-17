@@ -85,7 +85,7 @@ A **TimeSlot** is represented as follows:
 ### Configuration options
 
 ```typescript
-/* The length of the time slots in minutes. */
+/* Required. The length of the time slots in minutes. */
 timeSlotDuration: number
 ```
 ```typescript
@@ -97,7 +97,7 @@ timeSlotDuration: number
 slotStartMinuteStep: number
 ```
 ```typescript
-/* Bookable periods for each day of the week. */
+/* Required. Bookable periods for each day of the week. */
 availablePeriods: [{
     isoWeekDay: number, // 1 (Monday) - 7 (Sunday)
     shifts: [{
@@ -142,7 +142,7 @@ minTimeBeforeFirstSlot: number
 maxDaysBeforeLastSlot: number
 ```
 ```typescript
-/* The time zone used through all the configuration. */
+/* Required. The time zone used through all the configuration. */
 timeZone: string
 ```
 [See the time zones list here.](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones)
