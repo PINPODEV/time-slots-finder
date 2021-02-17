@@ -291,6 +291,38 @@ describe("#isConfigurationValid", () => {
 		})).toThrowError(new TimeSlotsFinderError(`Invalid time zone: InvalidTZ`))
 		expect(() => isConfigurationValid({
 			timeSlotDuration: 12,
+			availablePeriods: [{
+				isoWeekDay: 1,
+				shifts: [{
+					startTime: "19:00",
+					endTime: "21:00",
+				}],
+			}],
+		} as never)).toThrowError(new TimeSlotsFinderError(`Missing time zone`))
+		expect(() => isConfigurationValid({
+			timeSlotDuration: 12,
+			timeZone: null as never,
+			availablePeriods: [{
+				isoWeekDay: 1,
+				shifts: [{
+					startTime: "19:00",
+					endTime: "21:00",
+				}],
+			}],
+		})).toThrowError(new TimeSlotsFinderError(`Missing time zone`))
+		expect(() => isConfigurationValid({
+			timeSlotDuration: 12,
+			timeZone: "",
+			availablePeriods: [{
+				isoWeekDay: 1,
+				shifts: [{
+					startTime: "19:00",
+					endTime: "21:00",
+				}],
+			}],
+		})).toThrowError(new TimeSlotsFinderError(`Missing time zone`))
+		expect(() => isConfigurationValid({
+			timeSlotDuration: 12,
 			timeZone: "Europe/Paris",
 			availablePeriods: null as never,
 		})).toThrowError(new TimeSlotsFinderError(`A list of available periods is expected`))
