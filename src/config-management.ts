@@ -61,11 +61,7 @@ function _checkPrimitiveValue(configuration: TimeSlotsFinderConfiguration): bool
 	if (!_nullOrGreaterThanOrEqualTo(1, configuration.maxDaysBeforeLastSlot)) {
 		throw new TimeSlotsFinderError(`The number of days before latest slot must be at least 1`)
 	}
-	try {
-		dayjs().tz(configuration.timeZone)
-	} catch (_) {
-		throw new TimeSlotsFinderError(`Invalid time zone: ${configuration.timeZone}`)
-	}
+	_checkTimeZone(configuration.timeZone)
 
 	const minBeforeFirst = configuration.minTimeBeforeFirstSlot
 	const maxBeforeLast = configuration.maxDaysBeforeLastSlot
@@ -73,6 +69,17 @@ function _checkPrimitiveValue(configuration: TimeSlotsFinderConfiguration): bool
 		throw new TimeSlotsFinderError(`The first possible slot will always be after last one possible (see minTimeBeforeFirstSlot and maxDaysBeforeLastSlot)`)
 	}
 	return true
+}
+
+function _checkTimeZone(timeZone: string) {
+	if (!timeZone) {
+		throw new TimeSlotsFinderError(`Missing time zone`)
+	}
+	try {
+		dayjs().tz(timeZone)
+	} catch (_) {
+		throw new TimeSlotsFinderError(`Invalid time zone: ${timeZone}`)
+	}
 }
 
 function _nullOrGreaterThanOrEqualTo(limit: number, value?: number): boolean {
