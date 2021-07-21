@@ -1,0 +1,13 @@
+name: Auto merge Dependabot PRs for patches and minor updates
+
+on:
+  pull_request_target
+
+jobs:
+  auto-approve-dependabot:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: ahmadnassri/action-dependabot-auto-merge@v2
+        with:
+          target: minor
+          github-token: "${{ secrets.GITHUB_TOKEN }}"
