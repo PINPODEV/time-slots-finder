@@ -46,16 +46,15 @@ export function getAvailableTimeSlotsInCalendar(params: TimeSlotsFinderParameter
 	if (calendarData) {
 		eventList.push(...extractEventsFromCalendar(timeZone, calendarFormat, calendarData))
 	}
-
 	/* Sort by ascending startAt */
 	eventList.sort((eventA, eventB) => eventA.startAt.valueOf() - eventB.startAt.valueOf())
-
 	const { firstFromMoment, lastToMoment } = _computeBoundaries(from, to, usedConfig)
 
 	const timeSlots: TimeSlot[] = []
 
 	let fromMoment = firstFromMoment
 	while (fromMoment.isBefore(lastToMoment)) {
+		// Retrieve availablePeriods shifs for the given weekday
 		const weekDayConfig = _getWeekDayConfigForMoment(usedConfig, fromMoment)
 		if (weekDayConfig) {
 			/* Go through each shift of the week day */
@@ -154,17 +153,20 @@ function _getAvailableTimeSlotsForShift(
 ) {
 	const timeSlots: TimeSlot[] = []
 	const minTimeWindowNeeded = _getMinTimeWindowNeeded(configuration)
+	/* Filter encompassed events */
+	const cleanedList: DayjsPeriod[] = _cleanEventList(eventList)
 	let searchMoment = from.subtract(configuration.minAvailableTimeBeforeSlot ?? 0, "minute")
 	const searchEndMoment = to.subtract(
 		configuration.timeSlotDuration + (configuration.minAvailableTimeBeforeSlot ?? 0),
 		"minute",
 	)
 	/* Find index of the first event that is not yet ended at searchMoment */
-	let eventIndex = eventList.findIndex((event) => event.endAt.isAfter(searchMoment))
+	let eventIndex = cleanedList.findIndex((event) => event.endAt.isAfter(searchMoment))
 	while (searchMoment.isSameOrBefore(searchEndMoment)) {
-		const focusedEvent: DayjsPeriod | null = (eventIndex >= 0 && eventList[eventIndex]) || null
+		const focusedEvent: DayjsPeriod | null = (eventIndex >= 0 && cleanedList[eventIndex]) || null
 		/* Adjust searchMoment according to the slotStartMinuteMultiple param */
 		searchMoment = _nextSearchMoment(searchMoment, configuration)
+
 		const freeTimeLimitMoment = searchMoment.add(minTimeWindowNeeded, "minute")
 
 		if (focusedEvent?.startAt.isBefore(freeTimeLimitMoment)) {
@@ -181,6 +183,23 @@ function _getAvailableTimeSlotsForShift(
 		}
 	}
 	return timeSlots
+}
+
+/* Filters emcompassed events */
+function _cleanEventList(eventList: DayjsPeriod[]) {
+	return eventList
+		.filter((event) => {
+			for (const otherEvent of eventList) {
+				/* Search for an event with strictly larger boundaries */
+				if (
+					otherEvent.startAt.isBefore(event.startAt)
+					&& otherEvent.endAt.isAfter(event.endAt)
+				) {
+					return false
+				}
+			}
+			return true
+		})
 }
 
 function _getMinTimeWindowNeeded(configuration :TimeSlotsFinderConfiguration) {
