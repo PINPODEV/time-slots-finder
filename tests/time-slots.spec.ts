@@ -1,6 +1,7 @@
 import { getAvailableTimeSlotsInCalendar } from "../src"
 import MockDate from "mockdate"
 import iCalTestJSON from "./resources/calendar-ical.json"
+import iCalTestEncompassing from "./resources/calendar-ical-encompassing.json"
 import { TimeSlotsFinderError } from "../src/errors"
 
 const iCalData = (iCalTestJSON as unknown as { data: string }).data
@@ -17,7 +18,35 @@ const baseConfig = {
 describe("Time Slot Finder", () => {
 	beforeEach(() => MockDate.reset())
 	afterAll(() => MockDate.reset())
-
+	it("should take in account an encompassing timeslot", () => {
+		MockDate.set(new Date("2022-04-04T19:00:00.000Z"))
+		const slots = getAvailableTimeSlotsInCalendar({
+			calendarData: iCalTestEncompassing.data,
+			configuration: {
+				timeZone: "Europe/Paris",
+				timeSlotDuration: 15,
+				availablePeriods: [
+					{
+						isoWeekDay: 7,
+						shifts: [
+							{
+								startTime: "09:00",
+								endTime: "14:15"
+							}
+						]
+					}
+				]
+			},
+			from: new Date("2022-04-10T00:00:00.000+02:00"),
+			to: new Date("2022-04-11T00:00:00.000+02:00")
+		})
+		/**
+		 * Encompassing event is from 4 to 14.
+		 * To respect available period (9 to 14h15) we should only have a proposal at 14h
+		 */
+		expect(slots.length).toBe(1)
+		expect(slots[0].startAt.toISOString()).toBe("2022-04-10T12:00:00.000Z")
+	})
 	it("should return slots even without calendar data", () => {
 		MockDate.set(new Date("2020-10-14T15:00:00.000Z"))
 		const slots = getAvailableTimeSlotsInCalendar({
