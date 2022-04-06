@@ -35,6 +35,13 @@ The maintainers of this package are **@percypyan**, **@fbeiger** and **@Juskie**
 
 - Suggest your change and motivation behind it in the description and start writing code.
 
+### How to test a new version of the module in a local repository
+
+To test locally a new version of the time-slots-finder you checked out locally, from another repository you also checked out locally, you can use [yarn link feature](https://classic.yarnpkg.com/en/docs/cli/link)
+run `yarn link` on your time-slots-finder branch then run `yarn link "time-slots-finder"` in the local respository where you intend to use the module.
+Don't forget to unlink the local module when your done !
+
+
 ## Do you have questions about the source code?
 
 - Ask any question on how to use Time Slots Finder by [opening an issue](https://github.com/PINPODEV/time-slots-finder/issues/new).
