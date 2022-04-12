@@ -14,7 +14,6 @@ import {
 	TimeSlotsFinderCalendarFormat,
 	TimeSlotsFinderConfiguration
 } from "./types"
-import { setPriority } from "os"
 
 export interface TimeSlotsFinderParameters {
 	/** The calendar data. */
@@ -47,8 +46,6 @@ export function getAvailableTimeSlotsInCalendar(params: TimeSlotsFinderParameter
 	if (calendarData) {
 		eventList.push(...extractEventsFromCalendar(timeZone, calendarFormat, calendarData))
 	}
-	/* Sort by ascending startAt */
-	eventList.sort((eventA, eventB) => eventA.startAt.valueOf() - eventB.startAt.valueOf())
 	const { firstFromMoment, lastToMoment } = _computeBoundaries(from, to, usedConfig)
 
 	const timeSlots: TimeSlot[] = []
@@ -146,6 +143,7 @@ function _getMomentsFromShift(fromMoment: Dayjs, shift: Shift) {
 	return { startAt, endAt }
 }
 
+
 function _getAvailableTimeSlotsForShift(
 	configuration: TimeSlotsFinderConfiguration,
 	eventList: DayjsPeriod[],
@@ -154,8 +152,9 @@ function _getAvailableTimeSlotsForShift(
 ) {
 	const timeSlots: TimeSlot[] = []
 	const minTimeWindowNeeded = _getMinTimeWindowNeeded(configuration)
-	/* Filter encompassed events */
-	const cleanedList: DayjsPeriod[] = _cleanEventList(eventList)
+	/* Sort by startDate and filter encompassed events */
+	const cleanedList: DayjsPeriod[] = _sortPeriods(eventList)
+		.filter((event) => !_findEmcompassingEvent(eventList, event))
 	let searchMoment = from.subtract(configuration.minAvailableTimeBeforeSlot ?? 0, "minute")
 	const searchEndMoment = to.subtract(
 		configuration.timeSlotDuration + (configuration.minAvailableTimeBeforeSlot ?? 0),
@@ -211,11 +210,6 @@ function _findEmcompassingEvent(eventList: DayjsPeriod[], event: DayjsPeriod): b
 		} else { end = mid - 1 }
 	}
 	return false
-}
-
-/* Filters emcompassed events */
-function _cleanEventList(eventList: DayjsPeriod[]) {
-	return _sortPeriods(eventList).filter((event) => !_findEmcompassingEvent(eventList, event))
 }
 
 function _getMinTimeWindowNeeded(configuration :TimeSlotsFinderConfiguration) {
