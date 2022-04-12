@@ -14,6 +14,7 @@ import {
 	TimeSlotsFinderCalendarFormat,
 	TimeSlotsFinderConfiguration
 } from "./types"
+import { setPriority } from "os"
 
 export interface TimeSlotsFinderParameters {
 	/** The calendar data. */
@@ -185,21 +186,36 @@ function _getAvailableTimeSlotsForShift(
 	return timeSlots
 }
 
+/* Comparison function to sort DayjsPeriod on start date*/
+function _sortPeriods(periods: DayjsPeriod[]) {
+	return periods.sort((a, b) => (a.startAt.isAfter(b.startAt) ? 1 : -1))
+}
+
+/* Uses a binary search function (O(logN). Event list must be sorted on event.startAt */
+function _findEmcompassingEvent(eventList: DayjsPeriod[], event: DayjsPeriod): boolean {
+	let start = 0
+	let end = eventList.length - 1
+
+	// Iterate while start not meets end
+	while (start <= end) {
+		// Find the mid index
+		const mid = Math.floor((start + end) / 2)
+
+		// If element is present at mid, return True
+		if (eventList[mid].startAt.isBefore(event.startAt)
+			&& eventList[mid].endAt.isAfter(event.endAt)) {
+			return true
+		// Else look in left or right half accordingly
+		} else if (eventList[mid].startAt < event.startAt) {
+			start = mid + 1
+		} else { end = mid - 1 }
+	}
+	return false
+}
+
 /* Filters emcompassed events */
 function _cleanEventList(eventList: DayjsPeriod[]) {
-	return eventList
-		.filter((event) => {
-			for (const otherEvent of eventList) {
-				/* Search for an event with strictly larger boundaries */
-				if (
-					otherEvent.startAt.isBefore(event.startAt)
-					&& otherEvent.endAt.isAfter(event.endAt)
-				) {
-					return false
-				}
-			}
-			return true
-		})
+	return _sortPeriods(eventList).filter((event) => !_findEmcompassingEvent(eventList, event))
 }
 
 function _getMinTimeWindowNeeded(configuration :TimeSlotsFinderConfiguration) {
