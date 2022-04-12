@@ -143,7 +143,6 @@ function _getMomentsFromShift(fromMoment: Dayjs, shift: Shift) {
 	return { startAt, endAt }
 }
 
-
 function _getAvailableTimeSlotsForShift(
 	configuration: TimeSlotsFinderConfiguration,
 	eventList: DayjsPeriod[],

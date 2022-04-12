@@ -2,6 +2,7 @@ import { getAvailableTimeSlotsInCalendar } from "../src"
 import MockDate from "mockdate"
 import iCalTestJSON from "./resources/calendar-ical.json"
 import iCalTestEncompassing from "./resources/calendar-ical-encompassing.json"
+import iCalTestLarge from "./resources/calendar-ical-large.json"
 import { TimeSlotsFinderError } from "../src/errors"
 
 const iCalData = (iCalTestJSON as unknown as { data: string }).data
@@ -18,6 +19,50 @@ const baseConfig = {
 describe("Time Slot Finder", () => {
 	beforeEach(() => MockDate.reset())
 	afterAll(() => MockDate.reset())
+	it("should run fast on large calendar data set", () => {
+		const start = Date.now()
+		getAvailableTimeSlotsInCalendar({
+			calendarData: iCalTestLarge.data,
+			configuration: {
+				timeZone: "Europe/Paris",
+				timeSlotDuration: 15,
+				availablePeriods: [
+					{
+						isoWeekDay: 5,
+						shifts: [
+							{
+								startTime: "00:00",
+								endTime: "23:59"
+							}
+						]
+					},
+					{
+						isoWeekDay: 6,
+						shifts: [
+							{
+								startTime: "00:00",
+								endTime: "23:59"
+							}
+						]
+					},
+					{
+						isoWeekDay: 7,
+						shifts: [
+							{
+								startTime: "00:00",
+								endTime: "23:59"
+							}
+						]
+					}
+				]
+			},
+			from: new Date("2020-10-01T00:00:00.000+02:00"),
+			to: new Date("2022-10-20T00:00:00.000+02:00")
+		})
+		const end = Date.now()
+		// Results must be computing withing 15 sec (11 sec measured on last test)
+		expect(end - start).toBeLessThan(15 * 1000)
+	})
 	it("should take in account an encompassing timeslot", () => {
 		MockDate.set(new Date("2022-04-04T19:00:00.000Z"))
 		const slots = getAvailableTimeSlotsInCalendar({
