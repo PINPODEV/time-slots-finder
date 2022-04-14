@@ -2,6 +2,7 @@ import { getAvailableTimeSlotsInCalendar } from "../src"
 import MockDate from "mockdate"
 import iCalTestJSON from "./resources/calendar-ical.json"
 import iCalTestEncompassing from "./resources/calendar-ical-encompassing.json"
+import iCalTestEncompassing2 from "./resources/calendar-ical-encompassing-2.json"
 import iCalTestLarge from "./resources/calendar-ical-large.json"
 import { TimeSlotsFinderError } from "../src/errors"
 
@@ -19,7 +20,7 @@ const baseConfig = {
 describe("Time Slot Finder", () => {
 	beforeEach(() => MockDate.reset())
 	afterAll(() => MockDate.reset())
-	// This test is linked to _prepareEvents O(logN) complexity (when filtering events)
+	// This test is linked to _prepareEvents complexity (when filtering events)
 	it("should run fast on large calendar data set", () => {
 		const start = Date.now()
 		getAvailableTimeSlotsInCalendar({
@@ -61,10 +62,38 @@ describe("Time Slot Finder", () => {
 			to: new Date("2020-10-20T00:00:00.000+02:00")
 		})
 		const end = Date.now()
-		console.log(end - start)
-
 		// Results must be computing withing 1 sec (700ms on last test)
 		expect(end - start).toBeLessThan(1000)
+	})
+	it("should take in account an encompassing timeslot of 2 time slots", () => {
+		MockDate.set(new Date("2022-04-04T19:00:00.000Z"))
+		const slots = getAvailableTimeSlotsInCalendar({
+			calendarData: iCalTestEncompassing2.data,
+			configuration: {
+				timeZone: "Europe/Paris",
+				timeSlotDuration: 60,
+				availablePeriods: [
+					{
+						isoWeekDay: 7,
+						shifts: [
+							{
+								startTime: "09:00",
+								endTime: "20:00"
+							}
+						]
+					}
+				],
+				slotStartMinuteStep: 15
+			},
+			from: new Date("2022-04-10T00:00:00.000+02:00"),
+			to: new Date("2022-04-11T00:00:00.000+02:00")
+		})
+		/**
+		 * Encompassing event is from 4 to 14.
+		 * To respect available period (9 to 14h15) we should only have a proposal at 14h
+		 */
+		//expect(slots.length).toBe(1)
+		expect(slots[0].startAt.toISOString()).toBe("2022-04-10T08:00:00.000Z")
 	})
 	it("should take in account an encompassing timeslot", () => {
 		MockDate.set(new Date("2022-04-04T19:00:00.000Z"))
@@ -277,6 +306,11 @@ describe("Time Slot Finder", () => {
 			from: new Date("2020-10-16T15:15:00.000+02:00"),
 			to: new Date("2020-10-16T16:00:00.000+02:00"),
 		})
+		/*
+		 * In calendar Data, there is an event at 15h and 16h
+		 * We excpect an event at 15h15 (15min) but no events then because
+		 * it would start at 15h40, finish at 15h55 and break the 10min available rule
+		 */
 		expect(slots2.length).toBe(1)
 		expect(slots2[0].startAt.toString())
 			.toBe(new Date("2020-10-16T15:15:00.000+02:00").toString())
