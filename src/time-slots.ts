@@ -152,12 +152,25 @@ function _getAvailableTimeSlotsForShift(
 	const timeSlots: TimeSlot[] = []
 	const minTimeWindowNeeded = _getMinTimeWindowNeeded(configuration)
 
-	const cleanedList: DayjsPeriod[] = _prepareEvents(eventList, from, to)
-	let searchMoment = from.subtract(configuration.minAvailableTimeBeforeSlot ?? 0, "minute")
-	const searchEndMoment = to.subtract(
-		configuration.timeSlotDuration + (configuration.minAvailableTimeBeforeSlot ?? 0),
-		"minute",
-	)
+	const minAvailableTimeBeforeSlot = configuration.minAvailableTimeBeforeSlot ?? 0
+	const minAvailableTimeAfterSlot = configuration.timeSlotDuration + (configuration.minAvailableTimeBeforeSlot ?? 0)
+
+	// Ensures we preserve minAvailableTimeBeforeSlot before the first slot
+	let searchMoment = from.subtract(minAvailableTimeBeforeSlot, "minute")
+	/*
+	 *  Ensures we don't create an event that would finish after "to" boundary
+	 *  or break minAvailableTimeBeforeSlot
+	 */
+	const searchEndMoment = to.subtract(minAvailableTimeAfterSlot, "minute")
+
+	/*
+	 *  We can safely ignore calendar events outside from/to boundaries
+	 *  We extend this boundaries to take in account minAvailableTimeBeforeSlot
+	 */
+	const filteringMin = from.subtract(minAvailableTimeBeforeSlot, "minute")
+	const filteringMax = to.add(minAvailableTimeAfterSlot, "minute")
+	const cleanedList: DayjsPeriod[] = _prepareEvents(eventList, filteringMin, filteringMax)
+
 	/* Find index of the first event that is not yet ended at searchMoment */
 	let eventIndex = cleanedList.findIndex((event) => event.endAt.isAfter(searchMoment))
 	while (searchMoment.isSameOrBefore(searchEndMoment)) {
@@ -201,27 +214,31 @@ function _sortPeriods(periods: DayjsPeriod[]) {
 
 /* Filter DayjsPeriod which are strictly outside the provided boundaries */
 function _filterPeriods(periods: DayjsPeriod[], from: Dayjs, to: Dayjs) {
-	return periods.filter((period) => period.startAt.isBefore(to) && period.endAt.isAfter(from))
+	//console.log(periods)
+	//console.log(periods.filter((period) => period.startAt.isBefore(to)
+	//	&& period.endAt.isAfter(from)))
+	return periods.filter((period) => {
+		if (!(period.startAt.isBefore(to)
+			&& period.endAt.isAfter(from))) {
+			console.log("filtering", period)
+			}
+		return period.startAt.isBefore(to)
+		&& period.endAt.isAfter(from)
+	})
 }
 
-/* Uses a binary search function O(logN). Event list must be sorted on event.startAt */
+/* Uses a sorted search technique. Event list must be sorted on event.startAt */
 function _findEmcompassingEvent(eventList: DayjsPeriod[], event: DayjsPeriod): boolean {
-	let start = 0
-	let end = eventList.length - 1
-
-	// Iterate while start not meets end
-	while (start <= end) {
-		// Find the mid index
-		const mid = Math.floor((start + end) / 2)
-
-		// If element is present at mid, return True
-		if (eventList[mid].startAt.isBefore(event.startAt)
-			&& eventList[mid].endAt.isAfter(event.endAt)) {
+	for (const currentEvent of eventList) {
+		// Found condition
+		if (currentEvent.startAt.isSameOrBefore(event.startAt)
+			&& currentEvent.endAt.isAfter(event.endAt)) {
+			//console.log("filtering", event)
 			return true
-		// Else look in left or right half accordingly
-		} else if (eventList[mid].startAt < event.startAt) {
-			start = mid + 1
-		} else { end = mid - 1 }
+		// Stop if outside boundaries
+		} else if (currentEvent.startAt.isAfter(event.startAt)) {
+			return false
+		}
 	}
 	return false
 }
