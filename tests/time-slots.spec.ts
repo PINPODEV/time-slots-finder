@@ -19,6 +19,7 @@ const baseConfig = {
 describe("Time Slot Finder", () => {
 	beforeEach(() => MockDate.reset())
 	afterAll(() => MockDate.reset())
+	// This test is linked to _prepareEvents O(logN) complexity (when filtering events)
 	it("should run fast on large calendar data set", () => {
 		const start = Date.now()
 		getAvailableTimeSlotsInCalendar({
@@ -57,11 +58,13 @@ describe("Time Slot Finder", () => {
 				]
 			},
 			from: new Date("2020-10-01T00:00:00.000+02:00"),
-			to: new Date("2022-10-20T00:00:00.000+02:00")
+			to: new Date("2020-10-20T00:00:00.000+02:00")
 		})
 		const end = Date.now()
-		// Results must be computing withing 15 sec (11 sec measured on last test)
-		expect(end - start).toBeLessThan(15 * 1000)
+		console.log(end - start)
+
+		// Results must be computing withing 1 sec (700ms on last test)
+		expect(end - start).toBeLessThan(1000)
 	})
 	it("should take in account an encompassing timeslot", () => {
 		MockDate.set(new Date("2022-04-04T19:00:00.000Z"))
