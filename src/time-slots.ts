@@ -153,7 +153,8 @@ function _getAvailableTimeSlotsForShift(
 	const minTimeWindowNeeded = _getMinTimeWindowNeeded(configuration)
 
 	const minAvailableTimeBeforeSlot = configuration.minAvailableTimeBeforeSlot ?? 0
-	const minAvailableTimeAfterSlot = configuration.timeSlotDuration + (configuration.minAvailableTimeBeforeSlot ?? 0)
+	const minAvailableTimeAfterSlot = configuration.timeSlotDuration
+		+ (configuration.minAvailableTimeBeforeSlot ?? 0)
 
 	// Ensures we preserve minAvailableTimeBeforeSlot before the first slot
 	let searchMoment = from.subtract(minAvailableTimeBeforeSlot, "minute")
@@ -214,17 +215,8 @@ function _sortPeriods(periods: DayjsPeriod[]) {
 
 /* Filter DayjsPeriod which are strictly outside the provided boundaries */
 function _filterPeriods(periods: DayjsPeriod[], from: Dayjs, to: Dayjs) {
-	//console.log(periods)
-	//console.log(periods.filter((period) => period.startAt.isBefore(to)
-	//	&& period.endAt.isAfter(from)))
-	return periods.filter((period) => {
-		if (!(period.startAt.isBefore(to)
-			&& period.endAt.isAfter(from))) {
-			console.log("filtering", period)
-			}
-		return period.startAt.isBefore(to)
-		&& period.endAt.isAfter(from)
-	})
+	return periods.filter((period) => period.startAt.isBefore(to)
+		&& period.endAt.isAfter(from))
 }
 
 /* Uses a sorted search technique. Event list must be sorted on event.startAt */
@@ -233,7 +225,6 @@ function _findEmcompassingEvent(eventList: DayjsPeriod[], event: DayjsPeriod): b
 		// Found condition
 		if (currentEvent.startAt.isSameOrBefore(event.startAt)
 			&& currentEvent.endAt.isAfter(event.endAt)) {
-			//console.log("filtering", event)
 			return true
 		// Stop if outside boundaries
 		} else if (currentEvent.startAt.isAfter(event.startAt)) {

@@ -92,7 +92,6 @@ describe("Time Slot Finder", () => {
 		 * Encompassing event is from 4 to 14.
 		 * To respect available period (9 to 14h15) we should only have a proposal at 14h
 		 */
-		//expect(slots.length).toBe(1)
 		expect(slots[0].startAt.toISOString()).toBe("2022-04-10T08:00:00.000Z")
 	})
 	it("should take in account an encompassing timeslot", () => {
