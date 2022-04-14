@@ -151,9 +151,8 @@ function _getAvailableTimeSlotsForShift(
 ) {
 	const timeSlots: TimeSlot[] = []
 	const minTimeWindowNeeded = _getMinTimeWindowNeeded(configuration)
-	/* Sort by startDate and filter encompassed events */
-	const cleanedList: DayjsPeriod[] = _sortPeriods(eventList)
-		.filter((event) => !_findEmcompassingEvent(eventList, event))
+
+	const cleanedList: DayjsPeriod[] = _prepareEvents(eventList, from, to)
 	let searchMoment = from.subtract(configuration.minAvailableTimeBeforeSlot ?? 0, "minute")
 	const searchEndMoment = to.subtract(
 		configuration.timeSlotDuration + (configuration.minAvailableTimeBeforeSlot ?? 0),
@@ -184,12 +183,28 @@ function _getAvailableTimeSlotsForShift(
 	return timeSlots
 }
 
-/* Comparison function to sort DayjsPeriod on start date*/
+/*
+ * Filter events time boundaries (to enhance performance)
+ * then sort by startDate (to make binary sort possible)
+ * then filter encompassed events (using binary search)
+ */
+function _prepareEvents(periods: DayjsPeriod[], from: Dayjs, to:Dayjs) {
+	const filteredPeriods = _filterPeriods(periods, from, to)
+	const sortedPeriods = _sortPeriods(filteredPeriods)
+	return sortedPeriods.filter((event) => !_findEmcompassingEvent(sortedPeriods, event))
+}
+
+/* Comparison function to sort DayjsPeriod on start date */
 function _sortPeriods(periods: DayjsPeriod[]) {
 	return periods.sort((a, b) => (a.startAt.isAfter(b.startAt) ? 1 : -1))
 }
 
-/* Uses a binary search function (O(logN). Event list must be sorted on event.startAt */
+/* Filter DayjsPeriod which are strictly outside the provided boundaries */
+function _filterPeriods(periods: DayjsPeriod[], from: Dayjs, to: Dayjs) {
+	return periods.filter((period) => period.startAt.isBefore(to) && period.endAt.isAfter(from))
+}
+
+/* Uses a binary search function O(logN). Event list must be sorted on event.startAt */
 function _findEmcompassingEvent(eventList: DayjsPeriod[], event: DayjsPeriod): boolean {
 	let start = 0
 	let end = eventList.length - 1
