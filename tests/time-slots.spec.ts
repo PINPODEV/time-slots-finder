@@ -94,6 +94,54 @@ describe("Time Slot Finder", () => {
 		 */
 		expect(slots[0].startAt.toISOString()).toBe("2022-04-10T08:00:00.000Z")
 	})
+	it("should return slot with start minute '00' for 'from' in past", () => {
+		MockDate.set(new Date("2023-05-03T07:13:36.123Z"))
+		const slots = getAvailableTimeSlotsInCalendar({
+			configuration: {
+				timeZone: "Europe/Paris",
+				timeSlotDuration: 60,
+				availablePeriods: [
+					{
+						isoWeekDay: 3,
+						shifts: [
+							{
+								startTime: "10:00",
+								endTime: "11:00"
+							}
+						]
+					}
+				],
+				slotStartMinuteStep: 1
+			},
+			from: new Date("2023-05-03T07:00:00.000Z"),
+			to: new Date("2023-05-03T23:00:00.000Z")
+		})
+		expect(slots[0].startAt.toISOString()).toBe("2023-05-03T08:00:00.000Z")
+	})
+	it("should return slot with start minute '00' for 'from' in future with random time", () => {
+		MockDate.set(new Date("2023-05-03T07:13:36.123Z"))
+		const slots = getAvailableTimeSlotsInCalendar({
+			configuration: {
+				timeZone: "Europe/Paris",
+				timeSlotDuration: 60,
+				availablePeriods: [
+					{
+						isoWeekDay: 3,
+						shifts: [
+							{
+								startTime: "10:00",
+								endTime: "11:00"
+							}
+						]
+					}
+				],
+				slotStartMinuteStep: 1
+			},
+			from: new Date("2023-05-03T08:12:34.567"),
+			to: new Date("2023-05-03T23:00:00.000Z")
+		})
+		expect(slots[0].startAt.toISOString()).toBe("2023-05-03T08:00:00.000Z")
+	})
 	it("should take in account an encompassing timeslot", () => {
 		MockDate.set(new Date("2022-04-04T19:00:00.000Z"))
 		const slots = getAvailableTimeSlotsInCalendar({
