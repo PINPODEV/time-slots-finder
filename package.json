@@ -47,6 +47,6 @@
   ],
   "dependencies": {
     "dayjs": "^1.9.3",
-    "ical2json": "^3.0.0"
+    "ical2json": "^4.0.1"
   }
 }
